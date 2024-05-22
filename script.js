@@ -10,8 +10,9 @@ const dunes = new Dunes();
 let rocksX = 0;
 let mountainX = 0;
 let mountainX2 = 0;
-let duneOffset = 0;
-let duneY = 330;
+let duneXOffset = 0;
+let duneYOffset = 330;
+let duneAxiPoint = { x: 200, y: HEIGHT - 200 };
 
 const imageSources = {
   boarder: "./images/boarder.png",
@@ -67,19 +68,22 @@ const drawDunes = () => {
     return;
   }
   ctx.beginPath();
-  ctx.moveTo(heightMap[0].x - duneOffset, heightMap[0].y);
-  for (let i = 1; i < heightMap.length - 1; i++) {
+  ctx.moveTo(heightMap[0].x - duneXOffset, heightMap[0].y);
+  for (let i = 1; i < heightMap.length - 4; i++) {
     ctx.quadraticCurveTo(
-      heightMap[i].x - duneOffset,
+      heightMap[i].x - duneXOffset,
       heightMap[i].y,
-      (heightMap[i].x - duneOffset + heightMap[i + 1].x - duneOffset) / 2,
+      (heightMap[i].x - duneXOffset + heightMap[i + 1].x - duneXOffset) / 2,
       (heightMap[i].y + heightMap[i + 1].y) / 2
     );
+  }
+  for (let i = heightMap.length - 3; i < heightMap.length; i++) {
+    ctx.lineTo(heightMap[i].x - duneXOffset, heightMap[i].y);
   }
   ctx.closePath();
   ctx.fillStyle = "#be9128";
   ctx.fill();
-  duneOffset += 5;
+  duneXOffset += 5;
 };
 
 const animate = () => {
