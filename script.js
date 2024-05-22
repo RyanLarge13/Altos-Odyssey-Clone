@@ -1,29 +1,24 @@
+import Dunes from "./dunes.js";
+
 const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
 const WIDTH = 1000;
 const HEIGHT = 500;
 
-const boarder = new Image();
-const bg1 = new Image();
-const bg2 = new Image();
-const sun = new Image();
-const clouds = new Image();
+const dunes = new Dunes();
 
 let rocksX = 0;
 let mountainX = 0;
 let mountainX2 = 0;
-let speed = 15;
+let duneOffset = 0;
+let duneY = 330;
 
-const radians = Math.atan(2000 / 8000);
-const angle = radians * (180 / Math.PI);
-const maxHeight = HEIGHT - 200;
 const imageSources = {
   boarder: "./images/boarder.png",
   bg1: "./images/bg-1.png",
   bg2: "./images/bg-2.png",
   sun: "./images/sun.png",
   frontMt: "./images/bg-3.png",
-  dun1: "./images/dune-3.png",
 };
 
 const loadImage = (src) => {
@@ -48,11 +43,8 @@ const loadAllImages = async (srcs) => {
 const images = await loadAllImages(imageSources);
 
 let sunYX = { y: -50, x: WIDTH / 2 - images[3].width / 2 };
-let dune = { y: images[5].height / 7, x: 0 };
 
 const update = () => {
-  const dx = Math.cos(angle * (Math.PI / 180)) * speed;
-  const dy = Math.sin(angle * (Math.PI / 180)) * speed;
   if (rocksX <= -1000) {
     rocksX = 0;
   }
@@ -62,17 +54,32 @@ const update = () => {
   if (mountainX2 <= -1000) {
     mountainX2 = 0;
   }
-  if (dune.x + images[5].width <= -1000) {
-    dune.x = 0;
-    dune.y = images[5].height / 7;
-  }
   rocksX -= 0.1;
   mountainX -= 0.2;
   mountainX2 -= 0.7;
   sunYX.y -= 0.01;
   sunYX.x += 0.01;
-  dune.x -= dx;
-  dune.y -= dy;
+};
+
+const drawDunes = () => {
+  const heightMap = dunes.getHeightMap();
+  if (heightMap.length < 2) {
+    return;
+  }
+  ctx.beginPath();
+  ctx.moveTo(heightMap[0].x - duneOffset, heightMap[0].y);
+  for (let i = 1; i < heightMap.length - 1; i++) {
+    ctx.quadraticCurveTo(
+      heightMap[i].x - duneOffset,
+      heightMap[i].y,
+      (heightMap[i].x - duneOffset + heightMap[i + 1].x - duneOffset) / 2,
+      (heightMap[i].y + heightMap[i + 1].y) / 2
+    );
+  }
+  ctx.closePath();
+  ctx.fillStyle = "#be9128";
+  ctx.fill();
+  duneOffset += 5;
 };
 
 const animate = () => {
@@ -82,7 +89,7 @@ const animate = () => {
   ctx.drawImage(images[1], mountainX, HEIGHT - images[1].height + 50);
   ctx.drawImage(images[4], mountainX2, HEIGHT - images[4].height);
   ctx.drawImage(images[0], 200, HEIGHT - 200, 30, 30);
-  ctx.drawImage(images[5], dune.x, dune.y);
+  drawDunes();
   update();
   requestAnimationFrame(animate);
 };
