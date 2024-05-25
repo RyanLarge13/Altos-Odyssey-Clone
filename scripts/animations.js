@@ -1,9 +1,8 @@
 class Animation {
-  constructor(imgSrc, offsetXY, speed) {
+  constructor(imgSrc, offsetXY) {
     this.imgSrc = imgSrc;
     this.img = null;
-    this.offsetXY = offsetXY;
-    this.speed = speed;
+    this.offsetXY = { ...offsetXY };
     this.imgHeight = 0;
     this.imgWidth = 0;
   }
@@ -28,17 +27,9 @@ class Animation {
       };
     });
   }
-  move(x, y) {
-    this.offsetXY = {
-      x: (x + this.offsetXY.x) * this.speed,
-      y: (y + this.offsetXY.y) * this.speed,
-    };
-  }
-  setSpeed(value) {
-    this.speed = value;
-  }
-  offset() {
-    return this.offsetXY;
+  move(newSpeed, newVelocity) {
+    this.offsetXY.x += newSpeed.x * newVelocity.x;
+    this.offsetXY.y += newSpeed.y * newVelocity.y;
   }
 }
 

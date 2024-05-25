@@ -1,44 +1,50 @@
 import Animation from "./scripts/animations.js";
+import { HEIGHT, WIDTH, srcs } from "./constants.js";
 
 const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
-const WIDTH = 1000;
-const HEIGHT = 500;
 
-const imageSources = {
-  boarder: "../images/boarder.png",
-  bg1: "../images/bg-1.png",
-  bg2: "../images/bg-2.png",
-  sun: "../images/sun.png",
-  frontMt: "../images/bg-3.png",
-};
+let animations = {};
 
-const sandBoarder = new Animation(
-  imageSources.boarder,
-  { x: 200, y: HEIGHT - 200 },
-  0
-);
-const bg1 = new Animation(imageSources.bg1, { x: 0, y: HEIGHT }, 0);
-const bg2 = new Animation(imageSources.bg2, { x: 0, y: HEIGHT }, 0);
-const sun = new Animation(imageSources.sun, { x: WIDTH, y: 200 }, 0);
-const bg3 = new Animation(imageSources.frontMt, { x: 0, y: HEIGHT }, 0);
-
-try {
-  await sandBoarder.initialize();
-  await bg1.initialize({ x: false, y: true });
-  await bg2.initialize({ x: false, y: true });
-  await sun.initialize({ x: true, y: false });
-  await bg3.initialize({ x: false, y: true });
-} catch (err) {
-  console.log(err);
+for (let i = 0; i < srcs.length; i++) {
+  const newAni = new Animation(srcs[i].src, srcs[i].initializedOffset);
+  try {
+    await newAni.initialize(srcs[i].translation);
+  } catch (err) {
+    console.log(`Error : ${err}`);
+  }
+  const name = srcs[i].name;
+  animations[name] = newAni;
 }
 
-const update = () => {};
+const keys = Object.keys(animations);
+
+const update = (ani, newSpeed, newVelocity) => {
+  ani.move(newSpeed, newVelocity);
+};
 
 const animate = () => {
   ctx.clearRect(0, 0, WIDTH, HEIGHT);
-
-  update();
+  for (let i = 0; i < keys.length; i++) {
+    const ani = animations[keys[i]];
+    ctx.drawImage(ani.img, ani.offsetXY.x, ani.offsetXY.y);
+    switch (keys[i]) {
+      case "bg1":
+        update(ani, { x: 0.1, y: 0 }, { x: -1, y: 0 });
+        break;
+      case "bg2":
+        update(ani, { x: 0.2, y: 0 }, { x: -1, y: 0 });
+        break;
+      case "bg3":
+        update(ani, { x: 0.5, y: 0 }, { x: -1, y: 0 });
+        break;
+      case "sun":
+        update(ani, { x: 0.001, y: 0.01 }, { x: 1, y: -1 });
+        break;
+      default:
+        null;
+    }
+  }
   requestAnimationFrame(animate);
 };
 
