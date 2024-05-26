@@ -1,6 +1,14 @@
 import Animation from "./scripts/animations.js";
 import Dune from "./scripts/dunes.js";
-import { HEIGHT, WIDTH, srcs, heightMaps } from "./constants.js";
+import {
+  HEIGHT,
+  WIDTH,
+  DUNE_SPEED_X,
+  DUNE_SPEED_Y,
+  GAME_VELOCITY,
+  srcs,
+  heightMaps,
+} from "./constants.js";
 
 const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
@@ -42,9 +50,9 @@ const calcY = (points) => {
       const t = (targetX - p0.x) / (p1.x - p0.x);
       const y = Math.floor(p0.y + t * (p1.y - p0.y) - duneY);
       console.log(`Calculated Y at targetX ${targetX}: ${y}`);
-      if (y > 330) {
+      if (y > 327) {
         duneY += 1; // Adjust the speed as necessary
-      } else if (y < 330) {
+      } else if (y < 327) {
         duneY -= 1; // Adjust the speed as necessary
       }
       return y;
@@ -67,7 +75,7 @@ const animateDunes = () => {
   ctx.fillStyle = "#be9128";
   ctx.fill();
   calcY(points);
-  duneX += 5;
+  duneX += 2;
 };
 
 const animate = () => {

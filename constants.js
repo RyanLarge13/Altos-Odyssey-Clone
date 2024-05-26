@@ -1,7 +1,8 @@
 export const WIDTH = 1000;
 export const HEIGHT = 500;
-export const GAME_SPEED = 0;
-export const GAME_VELOCITY = 0;
+export let DUNE_SPEED_X = 0;
+export let DUNE_SPEED_Y = 0;
+export let GAME_VELOCITY = 1;
 
 export const srcs = [
   {
@@ -38,20 +39,20 @@ export const srcs = [
 
 export const heightMaps = [
   [
-    { x: 0, y: 330 },
-    { x: 100, y: 330 },
-    { x: 200, y: 330 },
-    { x: 300, y: 330 },
-    { x: 400, y: 330 },
-    { x: 500, y: 330 },
-    { x: 600, y: 330 },
-    { x: 700, y: 330 },
-    { x: 800, y: 330 },
-    { x: 900, y: 330 },
-    { x: 1000, y: 330 },
-    { x: 1100, y: 330 },
-    { x: 1200, y: 330 },
-    { x: 1300, y: 330 },
+    { x: 0, y: 327 },
+    { x: 100, y: 327 },
+    { x: 200, y: 327 },
+    { x: 300, y: 327 },
+    { x: 400, y: 327 },
+    { x: 500, y: 327 },
+    { x: 600, y: 327 },
+    { x: 700, y: 327 },
+    { x: 800, y: 327 },
+    { x: 900, y: 327 },
+    { x: 1000, y: 327 },
+    { x: 1100, y: 327 },
+    { x: 1200, y: 327 },
+    { x: 1300, y: 327 },
     { x: 1400, y: 340 },
     { x: 1500, y: 380 },
     { x: 1600, y: 400 },
@@ -66,8 +67,8 @@ export const heightMaps = [
     { x: 2500, y: 360 },
     { x: 2600, y: 350 },
     { x: 2700, y: 340 },
-    { x: 2800, y: 330 },
-    { x: 2900, y: 330 },
-    { x: 3000, y: 330 },
+    { x: 2800, y: 327 },
+    { x: 2900, y: 327 },
+    { x: 3000, y: 327 },
   ],
 ];
