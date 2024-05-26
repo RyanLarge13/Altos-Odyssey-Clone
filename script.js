@@ -34,18 +34,24 @@ const update = (ani, newSpeed, newVelocity) => {
 };
 
 const calcY = (points) => {
-  const totalPoints = points.length;
-  const normalizedX = (duneX + 200) % WIDTH;
-  const step = Math.floor((normalizedX / WIDTH) * totalPoints);
-
-  if (step >= 0 && step < totalPoints) {
-    const y = points[step].y;
-    console.log(y);
-    return y;
-  } else {
-    console.log("Step out of bounds");
-    return null;
+  const targetX = duneX + 200;
+  for (let i = 0; i < points.length - 1; i++) {
+    if (points[i].x <= targetX && points[i + 1].x > targetX) {
+      const p0 = points[i];
+      const p1 = points[i + 1];
+      const t = (targetX - p0.x) / (p1.x - p0.x);
+      const y = Math.floor(p0.y + t * (p1.y - p0.y) - duneY);
+      console.log(`Calculated Y at targetX ${targetX}: ${y}`);
+      if (y > 330) {
+        duneY += 1; // Adjust the speed as necessary
+      } else if (y < 330) {
+        duneY -= 1; // Adjust the speed as necessary
+      }
+      return y;
+    }
   }
+  console.log("Target X out of bounds");
+  return null;
 };
 
 const animateDunes = () => {
@@ -61,7 +67,7 @@ const animateDunes = () => {
   ctx.fillStyle = "#be9128";
   ctx.fill();
   calcY(points);
-  duneX += 2;
+  duneX += 5;
 };
 
 const animate = () => {
