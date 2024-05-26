@@ -1,14 +1,6 @@
 import Animation from "./scripts/animations.js";
 import Dune from "./scripts/dunes.js";
-import {
-  HEIGHT,
-  WIDTH,
-  DUNE_SPEED_X,
-  DUNE_SPEED_Y,
-  GAME_VELOCITY,
-  srcs,
-  heightMaps,
-} from "./constants.js";
+import { HEIGHT, WIDTH, srcs, heightMaps } from "./constants.js";
 
 const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
@@ -17,6 +9,11 @@ let animations = {};
 let dunes = [];
 let duneX = 0;
 let duneY = 0;
+let GRAVITY = 0;
+let DUNE_Y_TOLERANCE = 1;
+let DUNE_SPEED_X = 7;
+let DUNE_SPEED_Y = 2.5;
+let GAME_VELOCITY = 1;
 
 for (let i = 0; i < srcs.length; i++) {
   const newAni = new Animation(srcs[i].src, srcs[i].initializedOffset);
@@ -49,16 +46,9 @@ const calcY = (points) => {
       const p1 = points[i + 1];
       const t = (targetX - p0.x) / (p1.x - p0.x);
       const y = Math.floor(p0.y + t * (p1.y - p0.y) - duneY);
-      console.log(`Calculated Y at targetX ${targetX}: ${y}`);
-      if (y > 327) {
-        duneY += 1; // Adjust the speed as necessary
-      } else if (y < 327) {
-        duneY -= 1; // Adjust the speed as necessary
-      }
       return y;
     }
   }
-  console.log("Target X out of bounds");
   return null;
 };
 
@@ -74,8 +64,16 @@ const animateDunes = () => {
   ctx.closePath();
   ctx.fillStyle = "#be9128";
   ctx.fill();
-  calcY(points);
-  duneX += 2;
+  const y = calcY(points);
+  if (y > 327 + DUNE_Y_TOLERANCE) {
+    duneY += GRAVITY;
+    GRAVITY += 0.01;
+  } else if (y < 327 - DUNE_Y_TOLERANCE) {
+    duneY -= DUNE_SPEED_X * GAME_VELOCITY;
+  } else {
+    GRAVITY = 0;
+  }
+  duneX += DUNE_SPEED_X * GAME_VELOCITY;
 };
 
 const animate = () => {
