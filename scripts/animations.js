@@ -30,6 +30,9 @@ class Animation {
   move(newSpeed, newVelocity) {
     this.offsetXY.x += newSpeed.x * newVelocity.x;
     this.offsetXY.y += newSpeed.y * newVelocity.y;
+    if (this.offsetXY.x <= -this.imgWidth) {
+      this.offsetXY.x = 0;
+    }
   }
 }
 
