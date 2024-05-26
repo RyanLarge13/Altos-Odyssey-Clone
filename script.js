@@ -9,10 +9,10 @@ let animations = {};
 let dunes = [];
 let duneX = 0;
 let duneY = 0;
-let GRAVITY = 0;
-let DUNE_Y_TOLERANCE = 1;
-let DUNE_SPEED_X = 7;
-let DUNE_SPEED_Y = 2.5;
+const GRAVITY = 0.1;
+const MIN_DUNE_Y = 327;
+let DUNE_Y_VELOCITY = 0;
+let DUNE_SPEED_X = 10;
 let GAME_VELOCITY = 1;
 
 for (let i = 0; i < srcs.length; i++) {
@@ -65,15 +65,19 @@ const animateDunes = () => {
   ctx.fillStyle = "#be9128";
   ctx.fill();
   const y = calcY(points);
-  if (y > 327 + DUNE_Y_TOLERANCE) {
-    duneY += GRAVITY;
-    GRAVITY += 0.01;
-  } else if (y < 327 - DUNE_Y_TOLERANCE) {
-    duneY -= DUNE_SPEED_X * GAME_VELOCITY;
-  } else {
-    GRAVITY = 0;
-  }
   duneX += DUNE_SPEED_X * GAME_VELOCITY;
+  if (y > MIN_DUNE_Y) {
+    DUNE_Y_VELOCITY += GRAVITY;
+  } else if (y < MIN_DUNE_Y) {
+    DUNE_Y_VELOCITY -= 0.05;
+    duneY += y - MIN_DUNE_Y;
+    return;
+  } else {
+    DUNE_Y_VELOCITY = GRAVITY;
+    duneY += y - MIN_DUNE_Y;
+    return;
+  }
+  duneY += DUNE_Y_VELOCITY;
 };
 
 const animate = () => {
