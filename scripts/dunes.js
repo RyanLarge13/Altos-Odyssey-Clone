@@ -20,12 +20,14 @@ class Dune {
   }
 
   generateCubicBezierPoints() {
+    const controlPoints = this.#generateSmoothControlPoints();
+
     let i;
-    for (i = 0; i < this.heightMap.length - 3; i += 3) {
-      const p0 = this.heightMap[i];
-      const p1 = this.heightMap[i + 1];
-      const p2 = this.heightMap[i + 2];
-      const p3 = this.heightMap[i + 3];
+    for (i = 0; i < controlPoints.length - 3; i += 3) {
+      const p0 = controlPoints[i];
+      const p1 = controlPoints[i + 1];
+      const p2 = controlPoints[i + 2];
+      const p3 = controlPoints[i + 3];
       const numberOfPoints = (p3.x - p0.x) * this.density;
       for (let j = 0; j <= numberOfPoints; j++) {
         const t = j / numberOfPoints;
@@ -34,10 +36,11 @@ class Dune {
       }
     }
 
-    if (i < this.heightMap.length - 1) {
-      for (let j = i; j < this.heightMap.length - 1; j++) {
-        const p0 = this.heightMap[j];
-        const p1 = this.heightMap[j + 1];
+    // Handle remaining points with linear interpolation if any
+    if (i < controlPoints.length - 1) {
+      for (let j = i; j < controlPoints.length - 1; j++) {
+        const p0 = controlPoints[j];
+        const p1 = controlPoints[j + 1];
         const numberOfPoints = (p1.x - p0.x) * this.density;
         for (let k = 0; k <= numberOfPoints; k++) {
           const t = k / numberOfPoints;
@@ -49,6 +52,34 @@ class Dune {
     }
 
     return this.points;
+  }
+
+  #generateSmoothControlPoints() {
+    const smoothPoints = [];
+
+    for (let i = 0; i < this.heightMap.length; i++) {
+      const p0 = this.heightMap[i - 1] || this.heightMap[i];
+      const p1 = this.heightMap[i];
+      const p2 = this.heightMap[i + 1] || this.heightMap[i];
+      const p3 =
+        this.heightMap[i + 2] || this.heightMap[i + 1] || this.heightMap[i];
+
+      // Calculate the control points
+      const cp1 = {
+        x: p1.x + (p2.x - p0.x) / 6,
+        y: p1.y + (p2.y - p0.y) / 6,
+      };
+
+      const cp2 = {
+        x: p2.x - (p3.x - p1.x) / 6,
+        y: p2.y - (p3.y - p1.y) / 6,
+      };
+
+      smoothPoints.push(p1, cp1, cp2);
+    }
+
+    smoothPoints.push(this.heightMap[this.heightMap.length - 1]);
+    return smoothPoints;
   }
 }
 

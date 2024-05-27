@@ -1,5 +1,6 @@
 import Animation from "./scripts/animations.js";
 import Dune from "./scripts/dunes.js";
+import HeightMap from "./scripts/heightMaps.js";
 import { HEIGHT, WIDTH, srcs, heightMaps } from "./constants.js";
 
 const canvas = document.getElementById("canvas");
@@ -9,10 +10,10 @@ let animations = {};
 let dunes = [];
 let duneX = 0;
 let duneY = 0;
-const GRAVITY = 0.1;
+const GRAVITY = 0.2;
 const MIN_DUNE_Y = 327;
 let DUNE_Y_VELOCITY = 0;
-let DUNE_SPEED_X = 10;
+let DUNE_SPEED_X = 3;
 let GAME_VELOCITY = 1;
 
 for (let i = 0; i < srcs.length; i++) {
@@ -26,11 +27,18 @@ for (let i = 0; i < srcs.length; i++) {
   animations[name] = newAni;
 }
 
-for (let i = 0; i < heightMaps.length; i++) {
-  const dune = new Dune(heightMaps[i], 10);
-  const dunePoints = dune.generateCubicBezierPoints();
-  dunes.push(dunePoints);
-}
+// for (let i = 0; i < heightMaps.length; i++) {
+//   const dune = new Dune(heightMaps[i], 10);
+//   const dunePoints = dune.generateCubicBezierPoints();
+//   dunes.push(dunePoints);
+// }
+
+const heightMap1 = new HeightMap();
+const newMap = heightMap1.generateSmoothHeightMap(10000, 200, 30, 200);
+// const newMap1 = heightMap1.generateComplexHeightMap(4000, 1);
+const dune1 = new Dune(newMap, 10);
+const dunePoints = dune1.generateCubicBezierPoints();
+dunes.push(dunePoints);
 
 const keys = Object.keys(animations);
 
@@ -65,19 +73,16 @@ const animateDunes = () => {
   ctx.fillStyle = "#be9128";
   ctx.fill();
   const y = calcY(points);
+  const perfectY = y - MIN_DUNE_Y;
   duneX += DUNE_SPEED_X * GAME_VELOCITY;
-  if (y > MIN_DUNE_Y) {
-    DUNE_Y_VELOCITY += GRAVITY;
-  } else if (y < MIN_DUNE_Y) {
-    DUNE_Y_VELOCITY -= 0.05;
-    duneY += y - MIN_DUNE_Y;
-    return;
-  } else {
-    DUNE_Y_VELOCITY = GRAVITY;
-    duneY += y - MIN_DUNE_Y;
-    return;
+  if (perfectY >= 0) {
+    duneY -= DUNE_Y_VELOCITY * GRAVITY;
+    DUNE_Y_VELOCITY -= GRAVITY;
   }
-  duneY += DUNE_Y_VELOCITY;
+  if (perfectY < 0) {
+    duneY += perfectY;
+    DUNE_Y_VELOCITY = 0;
+  }
 };
 
 const animate = () => {
