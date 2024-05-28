@@ -12,8 +12,9 @@ let duneX = 0;
 let duneY = 0;
 const GRAVITY = 0.2;
 const MIN_DUNE_Y = 327;
-let DUNE_Y_VELOCITY = 0;
-let DUNE_SPEED_X = 3;
+const MAX_DUNE_X = 10;
+let DUNE_Y_VELOCITY = 1;
+let DUNE_SPEED_X = 5;
 let GAME_VELOCITY = 1;
 
 for (let i = 0; i < srcs.length; i++) {
@@ -34,7 +35,7 @@ for (let i = 0; i < srcs.length; i++) {
 // }
 
 const heightMap1 = new HeightMap();
-const newMap = heightMap1.generateSmoothHeightMap(10000, 200, 30, 200);
+const newMap = heightMap1.generateSmoothHeightMap(20000, 200, 70, 200);
 // const newMap1 = heightMap1.generateComplexHeightMap(4000, 1);
 const dune1 = new Dune(newMap, 10);
 const dunePoints = dune1.generateCubicBezierPoints();
@@ -75,14 +76,7 @@ const animateDunes = () => {
   const y = calcY(points);
   const perfectY = y - MIN_DUNE_Y;
   duneX += DUNE_SPEED_X * GAME_VELOCITY;
-  if (perfectY >= 0) {
-    duneY -= DUNE_Y_VELOCITY * GRAVITY;
-    DUNE_Y_VELOCITY -= GRAVITY;
-  }
-  if (perfectY < 0) {
-    duneY += perfectY;
-    DUNE_Y_VELOCITY = 0;
-  }
+  // Do some gravity stuff
 };
 
 const animate = () => {
