@@ -34,6 +34,12 @@ class Animation {
       this.offsetXY.x = 0;
     }
   }
+  get imageWidth() {
+    return this.imgWidth;
+  }
+  get imageHeight() {
+    return this.imageHeight;
+  }
 }
 
 export default Animation;

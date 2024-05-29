@@ -11,7 +11,7 @@ let dunes = [];
 let duneX = 0;
 let duneY = 0;
 const GRAVITY = 0.2;
-const MIN_DUNE_Y = 327;
+const MIN_DUNE_Y = 330;
 const MAX_DUNE_X = 10;
 let DUNE_Y_VELOCITY = 1;
 let DUNE_SPEED_X = 5;
@@ -48,14 +48,14 @@ const update = (ani, newSpeed, newVelocity) => {
 };
 
 const calcY = (points) => {
-  const targetX = duneX + 200;
-  for (let i = 0; i < points.length - 1; i++) {
+  const targetX = duneX + 220;
+  for (let i = 0; i < points.length - 15; i++) {
     if (points[i].x <= targetX && points[i + 1].x > targetX) {
       const p0 = points[i];
       const p1 = points[i + 1];
       const t = (targetX - p0.x) / (p1.x - p0.x);
       const y = Math.floor(p0.y + t * (p1.y - p0.y) - duneY);
-      return y;
+      return { y: y, x: points[i].x, futureX: points[i + 30].x };
     }
   }
   return null;
@@ -73,17 +73,32 @@ const animateDunes = () => {
   ctx.closePath();
   ctx.fillStyle = "#be9128";
   ctx.fill();
-  const y = calcY(points);
+  const { y, x, futureX } = calcY(points);
   const perfectY = y - MIN_DUNE_Y;
   duneX += DUNE_SPEED_X * GAME_VELOCITY;
-  // Do some gravity stuff
+  duneY += perfectY + 3.5;
+  const d = futureX - duneX;
+  const h = perfectY;
+  const angleRadians = Math.atan2(h, d);
+  // const boarder = animations["boarder"];
+  // ctx.save();
+  // ctx.translate(200 + 15, HEIGHT - 215);
+  // ctx.rotate(angleRadians * 20);
+  // ctx.drawImage(boarder.img, 0, 0);
+  // ctx.restore();
+  // const degs = angleRadians * (180 / Math.PI);
+  // rotate image
 };
 
 const animate = () => {
   ctx.clearRect(0, 0, WIDTH, HEIGHT);
   for (let i = 0; i < keys.length; i++) {
     const ani = animations[keys[i]];
-    ctx.drawImage(ani.img, ani.offsetXY.x, ani.offsetXY.y);
+    if (keys[i] === "boarder") {
+      null;
+    } else {
+      ctx.drawImage(ani.img, ani.offsetXY.x, ani.offsetXY.y);
+    }
     switch (keys[i]) {
       case "bg1":
         ctx.drawImage(ani.img, ani.offsetXY.x + WIDTH * 2, ani.offsetXY.y);
