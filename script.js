@@ -14,7 +14,7 @@ const GRAVITY = 0.2;
 const MIN_DUNE_Y = 330;
 const MAX_DUNE_X = 10;
 let DUNE_Y_VELOCITY = 1;
-let DUNE_SPEED_X = 5;
+let DUNE_SPEED_X = 10;
 let GAME_VELOCITY = 1;
 
 for (let i = 0; i < srcs.length; i++) {
@@ -48,7 +48,7 @@ const update = (ani, newSpeed, newVelocity) => {
 };
 
 const calcY = (points) => {
-  const targetX = duneX + 220;
+  const targetX = duneX + (215 + DUNE_SPEED_X / 2);
   for (let i = 0; i < points.length - 15; i++) {
     if (points[i].x <= targetX && points[i + 1].x > targetX) {
       const p0 = points[i];
@@ -61,14 +61,14 @@ const calcY = (points) => {
       // const ta = (targetX + 30 - p0a.x) / (p1a.x - p0a.x);
       // const ya = Math.floor(p0a.y + ta * (p1a.y - p0a.y) - duneY);
       // calculating variables at index + 30 x + 16 all. angle seems to rotate close to exact
-      const p0a = points[i + 30];
-      const p1a = points[i + 32];
-      const ta = (targetX + 16 - p0a.x) / (p1a.x - p0a.x);
+      const p0a = points[i];
+      const p1a = points[i + 15];
+      const ta = (targetX + 35 - p0a.x) / (p1a.x - p0a.x);
       const ya = Math.floor(p0a.y + ta * (p1a.y - p0a.y) - duneY);
       return {
         y: y,
         futureY: ya,
-        futureX: points[i + 16].x,
+        futureX: points[i + 15].x,
       };
     }
   }
@@ -90,19 +90,19 @@ const animateDunes = () => {
   const { y, futureX, futureY } = calcY(points);
   const perfectY = y - MIN_DUNE_Y;
   duneX += DUNE_SPEED_X * GAME_VELOCITY;
-  duneY += perfectY + 3.5;
+  duneY += perfectY + 2;
   //test 1
   // const d = futureX - duneX + 200;
   // const h = futureY - y;
   //test 2
-  const d = futureX - (duneX + 200);
+  const d = futureX - (duneX + 180);
   // h ???
   // const h = futureY - (y - duneY);
   const h = futureY - y;
   const angleRadians = Math.atan2(h, d);
   const boarder = animations["boarder"];
   ctx.save();
-  ctx.translate(215, HEIGHT - (200 - 15));
+  ctx.translate(210, HEIGHT - (200 - 15));
   console.log(angleRadians);
   // weird rotate when test 1 h, d variables were uncommented?
   // ctx.rotate(angleRadians * 12);
