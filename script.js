@@ -10,19 +10,24 @@ let animations = {};
 let dunes = [];
 let duneX = 0;
 let duneY = 0;
-let goingUp = 0;
-const GRAVITY = 0.1;
+const GRAVITY = 0.04;
 const MIN_DUNE_Y = 330;
 const MAX_DUNE_X = 10;
 let DUNE_Y_VELOCITY = 1;
 let DUNE_SPEED_X = 10;
 let GAME_VELOCITY = 1;
+let isJumping = false;
+let jumpVelocity = 0;
+const JUMP_STRENGTH = -2;
 
 const handleKeyDown = (e) => {
   const key = e.key;
   switch (key) {
     case "ArrowUp":
-      console.log("arrow up");
+      if (!isJumping) {
+        isJumping = true;
+        jumpVelocity = JUMP_STRENGTH;
+      }
       break;
   }
 };
@@ -75,17 +80,19 @@ const calcY = (points) => {
       // calculating variables at index + 30 x + 16 all. angle seems to rotate close to exact
       const p0a = points[i];
       const p1a = points[i + 15];
-      const ta = (targetX + 37.5 - p0a.x) / (p1a.x - p0a.x);
+      const ta = (targetX + 45 - p0a.x) / (p1a.x - p0a.x);
       const ya = Math.floor(p0a.y + ta * (p1a.y - p0a.y) - duneY);
       return {
         y: y,
         futureY: ya,
-        futureX: points[i + 34].x,
+        futureX: points[i + 45].x,
       };
     }
   }
   return null;
 };
+
+// let jumpOffset = 0;
 
 const animateDunes = () => {
   const points = dunes[0];
@@ -103,36 +110,52 @@ const animateDunes = () => {
   const d = futureX - (duneX + 180);
   const h = futureY - y;
   const angleRadians = Math.atan2(h, d);
-  const angle = angleRadians * (180 / Math.PI);
-  const perfectY = y - MIN_DUNE_Y;
+  // const angle = angleRadians * (180 / Math.PI);
+  let perfectY = y - MIN_DUNE_Y;
   duneX += DUNE_SPEED_X * GAME_VELOCITY;
-  if (perfectY > 0) {
-    // player is going downhill / hills are moving up
-    if (goingUp === 0) {
-      console.log("going up while hill is tilting down");
-      duneY += perfectY - DUNE_Y_VELOCITY * GRAVITY;
-      DUNE_Y_VELOCITY += 0.5;
+
+  // My attempt to making jumps work
+  // if (perfectY > 0) {
+  //   // player is going downhill / hills are moving up
+  //   if (DUNE_SPEED_X < 10) {
+  //     DUNE_SPEED_X += 0.1;
+  //   }
+  // }
+  // if (perfectY <= 0) {
+  //   // player is going up hill / hills are moving down
+  //   if (DUNE_SPEED_X > 5) {
+  //     DUNE_SPEED_X -= 0.1;
+  //   }
+  // }
+  // duneY += perfectY + 1;
+
+  // chatgpt attempt to make jumping work
+  if (!isJumping) {
+    // Player is on the ground
+    if (perfectY > 0) {
+      if (DUNE_SPEED_X < 10) {
+        DUNE_SPEED_X += 0.1;
+      }
     }
-    if (DUNE_SPEED_X < 10) {
-      DUNE_SPEED_X += 0.1;
+    if (perfectY <= 0) {
+      if (DUNE_SPEED_X > 5) {
+        DUNE_SPEED_X -= 0.1;
+      }
     }
-  }
-  if (perfectY <= 0) {
     duneY += perfectY + 1;
-    DUNE_Y_VELOCITY = 1;
-    // player is going up hill / hills are moving down
-    if (DUNE_SPEED_X > 5) {
-      // DUNE_SPEED_X -= 0.1;
+  } else {
+    // Player is in the air
+    jumpVelocity += GRAVITY;
+    duneY += perfectY - 1 + jumpVelocity;
+
+    // Check for landing
+    if (duneY <= perfectY) {
+      duneY = perfectY;
+      isJumping = false;
+      jumpVelocity = 0;
     }
   }
-  if (angle < 0) {
-    // negative angle means player is tilted uphill
-    goingUp = 1;
-  }
-  if (angle > 0) {
-    // positive angle means player is going down hill
-    goingUp = 0;
-  }
+
   //test 1
   // const d = futureX - duneX + 200;
   // const h = futureY - y;
