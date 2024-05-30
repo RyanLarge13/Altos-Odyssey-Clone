@@ -10,12 +10,24 @@ let animations = {};
 let dunes = [];
 let duneX = 0;
 let duneY = 0;
-const GRAVITY = 0.2;
+let goingUp = 0;
+const GRAVITY = 0.1;
 const MIN_DUNE_Y = 330;
 const MAX_DUNE_X = 10;
 let DUNE_Y_VELOCITY = 1;
 let DUNE_SPEED_X = 10;
 let GAME_VELOCITY = 1;
+
+const handleKeyDown = (e) => {
+  const key = e.key;
+  switch (key) {
+    case "ArrowUp":
+      console.log("arrow up");
+      break;
+  }
+};
+
+const handleKeyUp = (e) => {};
 
 for (let i = 0; i < srcs.length; i++) {
   const newAni = new Animation(srcs[i].src, srcs[i].initializedOffset);
@@ -35,7 +47,7 @@ for (let i = 0; i < srcs.length; i++) {
 // }
 
 const heightMap1 = new HeightMap();
-const newMap = heightMap1.generateSmoothHeightMap(20000, 200, 80, 200);
+const newMap = heightMap1.generateSmoothHeightMap(20000, 200, 60, 200);
 // const newMap1 = heightMap1.generateComplexHeightMap(4000, 1);
 const dune1 = new Dune(newMap, 10);
 const dunePoints = dune1.generateCubicBezierPoints();
@@ -63,12 +75,12 @@ const calcY = (points) => {
       // calculating variables at index + 30 x + 16 all. angle seems to rotate close to exact
       const p0a = points[i];
       const p1a = points[i + 15];
-      const ta = (targetX + 35 - p0a.x) / (p1a.x - p0a.x);
+      const ta = (targetX + 37.5 - p0a.x) / (p1a.x - p0a.x);
       const ya = Math.floor(p0a.y + ta * (p1a.y - p0a.y) - duneY);
       return {
         y: y,
         futureY: ya,
-        futureX: points[i + 15].x,
+        futureX: points[i + 34].x,
       };
     }
   }
@@ -88,22 +100,52 @@ const animateDunes = () => {
   ctx.fillStyle = "#be9128";
   ctx.fill();
   const { y, futureX, futureY } = calcY(points);
+  const d = futureX - (duneX + 180);
+  const h = futureY - y;
+  const angleRadians = Math.atan2(h, d);
+  const angle = angleRadians * (180 / Math.PI);
   const perfectY = y - MIN_DUNE_Y;
   duneX += DUNE_SPEED_X * GAME_VELOCITY;
-  duneY += perfectY + 2;
+  if (perfectY > 0) {
+    // player is going downhill / hills are moving up
+    if (goingUp === 0) {
+      console.log("going up while hill is tilting down");
+      duneY += perfectY - DUNE_Y_VELOCITY * GRAVITY;
+      DUNE_Y_VELOCITY += 0.5;
+    }
+    if (DUNE_SPEED_X < 10) {
+      DUNE_SPEED_X += 0.1;
+    }
+  }
+  if (perfectY <= 0) {
+    duneY += perfectY + 1;
+    DUNE_Y_VELOCITY = 1;
+    // player is going up hill / hills are moving down
+    if (DUNE_SPEED_X > 5) {
+      // DUNE_SPEED_X -= 0.1;
+    }
+  }
+  if (angle < 0) {
+    // negative angle means player is tilted uphill
+    goingUp = 1;
+  }
+  if (angle > 0) {
+    // positive angle means player is going down hill
+    goingUp = 0;
+  }
   //test 1
   // const d = futureX - duneX + 200;
   // const h = futureY - y;
   //test 2
-  const d = futureX - (duneX + 180);
+  // const d = futureX - (duneX + 180);
   // h ???
   // const h = futureY - (y - duneY);
-  const h = futureY - y;
-  const angleRadians = Math.atan2(h, d);
+  // const h = futureY - y;
+  // const angleRadians = Math.atan2(h, d);
   const boarder = animations["boarder"];
   ctx.save();
   ctx.translate(210, HEIGHT - (200 - 15));
-  console.log(angleRadians);
+  // console.log(angleRadians);
   // weird rotate when test 1 h, d variables were uncommented?
   // ctx.rotate(angleRadians * 12);
   // closer angles with test 2 h, d variables. this is weird.
@@ -151,3 +193,5 @@ const animate = () => {
 
 animate();
 animateDunes();
+window.addEventListener("keydown", handleKeyDown);
+window.addEventListener("keyup", handleKeyUp);
