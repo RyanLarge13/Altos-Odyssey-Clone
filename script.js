@@ -10,15 +10,9 @@ let animations = {};
 let dunes = [];
 let duneX = 0;
 let duneY = 0;
-const GRAVITY = 0.04;
 const MIN_DUNE_Y = 330;
-const MAX_DUNE_X = 10;
-let DUNE_Y_VELOCITY = 1;
 let DUNE_SPEED_X = 10;
 let GAME_VELOCITY = 1;
-let isJumping = false;
-let jumpVelocity = 0;
-const JUMP_STRENGTH = -2;
 
 const handleKeyDown = (e) => {
   const key = e.key;
@@ -52,7 +46,7 @@ for (let i = 0; i < srcs.length; i++) {
 // }
 
 const heightMap1 = new HeightMap();
-const newMap = heightMap1.generateSmoothHeightMap(20000, 200, 60, 200);
+const newMap = heightMap1.generateSmoothHeightMap(20000, 200, 60, 10);
 // const newMap1 = heightMap1.generateComplexHeightMap(4000, 1);
 const dune1 = new Dune(newMap, 10);
 const dunePoints = dune1.generateCubicBezierPoints();
@@ -72,12 +66,6 @@ const calcY = (points) => {
       const p1 = points[i + 1];
       const t = (targetX - p0.x) / (p1.x - p0.x);
       const y = Math.floor(p0.y + t * (p1.y - p0.y) - duneY);
-      // calculating values and index + 15 and + 30 where angle seems to be too much both positive and negative for rotating playing
-      // const p0a = points[i + 15];
-      // const p1a = points[i + 16];
-      // const ta = (targetX + 30 - p0a.x) / (p1a.x - p0a.x);
-      // const ya = Math.floor(p0a.y + ta * (p1a.y - p0a.y) - duneY);
-      // calculating variables at index + 30 x + 16 all. angle seems to rotate close to exact
       const p0a = points[i];
       const p1a = points[i + 15];
       const ta = (targetX + 45 - p0a.x) / (p1a.x - p0a.x);
@@ -91,8 +79,6 @@ const calcY = (points) => {
   }
   return null;
 };
-
-// let jumpOffset = 0;
 
 const animateDunes = () => {
   const points = dunes[0];
@@ -113,72 +99,13 @@ const animateDunes = () => {
   // const angle = angleRadians * (180 / Math.PI);
   let perfectY = y - MIN_DUNE_Y;
   duneX += DUNE_SPEED_X * GAME_VELOCITY;
-
-  // My attempt to making jumps work
-  // if (perfectY > 0) {
-  //   // player is going downhill / hills are moving up
-  //   if (DUNE_SPEED_X < 10) {
-  //     DUNE_SPEED_X += 0.1;
-  //   }
-  // }
-  // if (perfectY <= 0) {
-  //   // player is going up hill / hills are moving down
-  //   if (DUNE_SPEED_X > 5) {
-  //     DUNE_SPEED_X -= 0.1;
-  //   }
-  // }
-  // duneY += perfectY + 1;
-
-  // chatgpt attempt to make jumping work
-  if (!isJumping) {
-    // Player is on the ground
-    if (perfectY > 0) {
-      if (DUNE_SPEED_X < 10) {
-        DUNE_SPEED_X += 0.1;
-      }
-    }
-    if (perfectY <= 0) {
-      if (DUNE_SPEED_X > 5) {
-        DUNE_SPEED_X -= 0.1;
-      }
-    }
-    duneY += perfectY + 1;
-  } else {
-    // Player is in the air
-    jumpVelocity += GRAVITY;
-    duneY += perfectY - 1 + jumpVelocity;
-
-    // Check for landing
-    if (duneY <= perfectY) {
-      duneY = perfectY;
-      isJumping = false;
-      jumpVelocity = 0;
-    }
-  }
-
-  //test 1
-  // const d = futureX - duneX + 200;
-  // const h = futureY - y;
-  //test 2
-  // const d = futureX - (duneX + 180);
-  // h ???
-  // const h = futureY - (y - duneY);
-  // const h = futureY - y;
-  // const angleRadians = Math.atan2(h, d);
+  duneY += perfectY;
   const boarder = animations["boarder"];
   ctx.save();
   ctx.translate(210, HEIGHT - (200 - 15));
-  // console.log(angleRadians);
-  // weird rotate when test 1 h, d variables were uncommented?
-  // ctx.rotate(angleRadians * 12);
-  // closer angles with test 2 h, d variables. this is weird.
-  // ctx.rotate(angleRadians / 1.3);
-  // trying to get exact radians without magic numbers
   ctx.rotate(angleRadians);
   ctx.drawImage(boarder.img, -boarder.img.width / 2, -boarder.img.height / 2);
-  // ctx.drawImage(boarder.img, 0, 0);
   ctx.restore();
-  // rotate image
 };
 
 const animate = () => {
