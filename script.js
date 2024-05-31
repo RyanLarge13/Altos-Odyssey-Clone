@@ -18,6 +18,10 @@ let DUNE_Y_VELOCITY = 0;
 let PLAYER_Y_VELOCITY = 0;
 let PLAYER_Y = HEIGHT - (200 - 15);
 let IS_JUMPING = false;
+let SET_ANGLE = true;
+let ANGLE_RADIANS = 0;
+
+const handlePlayerAngle = () => {};
 
 const handleKeyDown = (e) => {
   const key = e.key;
@@ -27,12 +31,35 @@ const handleKeyDown = (e) => {
         IS_JUMPING = true;
         PLAYER_Y_VELOCITY = -4;
         DUNE_Y_VELOCITY = 4;
+        SET_ANGLE = false;
       }
       break;
+    case "ArrowLeft":
+      if (!SET_ANGLE) {
+        ANGLE_RADIANS -= 0.1;
+      }
+      break;
+    case "ArrowRight":
+      if (!SET_ANGLE) {
+        ANGLE_RADIANS += 0.1;
+      }
+      break;
+    default:
+      null;
   }
 };
 
-const handleKeyUp = (e) => {};
+const handleKeyUp = (e) => {
+  const key = e.key;
+  switch (key) {
+    case "ArrowLeft":
+      break;
+    case "ArrowRight":
+      break;
+    default:
+      null;
+  }
+};
 
 for (let i = 0; i < srcs.length; i++) {
   const newAni = new Animation(srcs[i].src, srcs[i].initializedOffset);
@@ -101,7 +128,9 @@ const animateDunes = () => {
   const { y, futureX, futureY } = calcY(points);
   const d = futureX - (DUNE_X + 180);
   const h = futureY - y;
-  const angleRadians = Math.atan2(h, d);
+  if (SET_ANGLE) {
+    ANGLE_RADIANS = Math.atan2(h, d);
+  }
   // const angle = angleRadians * (180 / Math.PI);
   let perfectY = y - MIN_DUNE_Y;
   DUNE_X += DUNE_SPEED_X * GAME_VELOCITY;
@@ -123,16 +152,20 @@ const animateDunes = () => {
     DUNE_Y_VELOCITY -= GRAVITY;
     PLAYER_Y += PLAYER_Y_VELOCITY;
     PLAYER_Y_VELOCITY += GRAVITY;
-    if (PLAYER_Y >= MIN_DUNE_Y - 15) {
+    if (Math.floor(PLAYER_Y) >= MIN_DUNE_Y - 15) {
+      console.log(PLAYER_Y);
       IS_JUMPING = false;
       PLAYER_Y_VELOCITY = 0;
       DUNE_Y_VELOCITY = 0;
+      DUNE_Y += perfectY;
+      PLAYER_Y = HEIGHT - (200 - 15);
+      SET_ANGLE = true;
     }
   }
   const boarder = animations["boarder"];
   ctx.save();
   ctx.translate(210, PLAYER_Y);
-  ctx.rotate(angleRadians);
+  ctx.rotate(ANGLE_RADIANS);
   ctx.drawImage(boarder.img, -boarder.img.width / 2, -boarder.img.height / 2);
   ctx.restore();
 };
