@@ -8,6 +8,11 @@ const ctx = canvas.getContext("2d");
 
 const MIN_DUNE_Y = 330;
 const GRAVITY = 0.1;
+const keyStates = {
+  ArrowUp: false,
+  ArrowRight: false,
+  ArrowLeft: false,
+};
 let animations = {};
 let dunes = [];
 let GAME_VELOCITY = 1;
@@ -21,44 +26,23 @@ let IS_JUMPING = false;
 let SET_ANGLE = true;
 let ANGLE_RADIANS = 0;
 
-const handlePlayerAngle = () => {};
-
 const handleKeyDown = (e) => {
   const key = e.key;
-  switch (key) {
-    case "ArrowUp":
-      if (!IS_JUMPING) {
-        IS_JUMPING = true;
-        PLAYER_Y_VELOCITY = -4;
-        DUNE_Y_VELOCITY = 4;
-        SET_ANGLE = false;
-      }
-      break;
-    case "ArrowLeft":
-      if (!SET_ANGLE) {
-        ANGLE_RADIANS -= 0.1;
-      }
-      break;
-    case "ArrowRight":
-      if (!SET_ANGLE) {
-        ANGLE_RADIANS += 0.1;
-      }
-      break;
-    default:
-      null;
+  if (key === "ArrowUp") {
+    if (!IS_JUMPING) {
+      IS_JUMPING = true;
+      SET_ANGLE = false;
+      PLAYER_Y_VELOCITY = -4;
+      DUNE_Y_VELOCITY = 4;
+    }
+    return;
   }
+  keyStates[key] = true;
 };
 
 const handleKeyUp = (e) => {
   const key = e.key;
-  switch (key) {
-    case "ArrowLeft":
-      break;
-    case "ArrowRight":
-      break;
-    default:
-      null;
-  }
+  keyStates[key] = false;
 };
 
 for (let i = 0; i < srcs.length; i++) {
@@ -198,6 +182,20 @@ const animate = () => {
       default:
         null;
     }
+  }
+  if (keyStates["ArrowLeft"] && IS_JUMPING && !SET_ANGLE) {
+    ANGLE_RADIANS -= 0.05;
+  }
+  if (keyStates["ArrowRight"] && IS_JUMPING && !SET_ANGLE) {
+    ANGLE_RADIANS += 0.05;
+  }
+  if (
+    !keyStates["ArrowRight"] &&
+    !keyStates["ArrowLeft"] &&
+    IS_JUMPING &&
+    !SET_ANGLE
+  ) {
+    ANGLE_RADIANS += 0.005;
   }
   animateDunes();
   requestAnimationFrame(animate);
