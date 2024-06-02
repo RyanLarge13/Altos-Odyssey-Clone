@@ -164,6 +164,14 @@ const animate = () => {
       ctx.drawImage(ani.img, ani.offsetXY.x, ani.offsetXY.y);
     }
     switch (keys[i]) {
+      case "clouds-back":
+        ctx.drawImage(ani.img, ani.offsetXY.x + WIDTH * 2, ani.offsetXY.y);
+        update(ani, { x: 0.01, y: 0 }, { x: -1, y: 0 });
+        break;
+      case "clouds-front":
+        ctx.drawImage(ani.img, ani.offsetXY.x + WIDTH * 2, ani.offsetXY.y);
+        update(ani, { x: 0.04, y: 0 }, { x: -1, y: 0 });
+        break;
       case "bg1":
         ctx.drawImage(ani.img, ani.offsetXY.x + WIDTH * 2, ani.offsetXY.y);
         update(ani, { x: 0.1, y: 0 }, { x: -1, y: 0 });
@@ -184,10 +192,10 @@ const animate = () => {
     }
   }
   if (keyStates["ArrowLeft"] && IS_JUMPING && !SET_ANGLE) {
-    ANGLE_RADIANS -= 0.05;
+    ANGLE_RADIANS -= 0.1;
   }
   if (keyStates["ArrowRight"] && IS_JUMPING && !SET_ANGLE) {
-    ANGLE_RADIANS += 0.05;
+    ANGLE_RADIANS += 0.1;
   }
   if (
     !keyStates["ArrowRight"] &&
