@@ -7,7 +7,7 @@ const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
 
 const MIN_DUNE_Y = 330;
-const GRAVITY = 0.1;
+const GRAVITY = 0.05;
 const keyStates = {
   ArrowUp: false,
   ArrowRight: false,
@@ -65,7 +65,7 @@ for (let i = 0; i < srcs.length; i++) {
 // }
 
 const heightMap1 = new HeightMap();
-const newMap = heightMap1.generateSmoothHeightMap(20000, 200, 50, 100);
+const newMap = heightMap1.generateSmoothHeightMap(20000, 500, 40, 50);
 // const newMap1 = heightMap1.generateComplexHeightMap(4000, 1);
 const dune1 = new Dune(newMap, 10);
 const dunePoints = dune1.generateCubicBezierPoints();
@@ -123,13 +123,13 @@ const animateDunes = () => {
   if (!IS_JUMPING) {
     DUNE_Y += perfectY + 1;
     if (perfectY >= 0) {
-      if (DUNE_SPEED_X < 10) {
-        DUNE_SPEED_X += 0.2;
+      if (DUNE_SPEED_X < 12) {
+        DUNE_SPEED_X += 0.1;
       }
     }
     if (perfectY <= 0) {
-      if (DUNE_SPEED_X > 3) {
-        // DUNE_SPEED_X -= 0.1;
+      if (DUNE_SPEED_X > 5) {
+        DUNE_SPEED_X -= 0.05;
       }
     }
   }
@@ -148,24 +148,22 @@ const animateDunes = () => {
     }
     if (PLAYER_Y >= HEIGHT - (200 - 15)) {
       PLAYER_Y = HEIGHT - (200 - 15);
+      // DUNE_Y += -DUNE_Y_VELOCITY;
     } else {
       PLAYER_Y += PLAYER_Y_VELOCITY;
       PLAYER_Y_VELOCITY += GRAVITY;
     }
     const playerSign = Math.sign(PLAYER_Y_VELOCITY - PREV_Y_PLAYER);
     const duneSign = Math.sign(DUNE_Y_VELOCITY - PREV_Y_DUNE);
+    console.log(ANGLE_RADIANS);
     const checkForLand = () => {
       const normalizedY = y - PLAYER_Y;
       if (Math.floor(normalizedY) <= 15) {
-        // if (duneSign > 0 || playerSign < 0) {
-        //   console.log("fuckery");
-        //   // return;
-        // }
-        if (duneSign === 0 && playerSign === 0) {
-          // PLAYER_Y_VELOCITY = -2;
-          DUNE_Y_VELOCITY = 4;
-          DUNE_Y += -DUNE_Y_VELOCITY;
-          // PLAYER_Y += PLAYER_Y_VELOCITY;
+        if (duneSign >= 0 && playerSign <= 0) {
+          // DUNE_Y_VELOCITY = 2;
+          PLAYER_Y_VELOCITY = -2;
+          PLAYER_Y += PLAYER_Y_VELOCITY;
+          // DUNE_Y += -DUNE_Y_VELOCITY;
           return;
         }
         IS_JUMPING = false;
