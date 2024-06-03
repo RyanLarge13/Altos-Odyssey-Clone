@@ -32,8 +32,8 @@ const handleKeyDown = (e) => {
     if (!IS_JUMPING) {
       IS_JUMPING = true;
       SET_ANGLE = false;
-      PLAYER_Y_VELOCITY = -4;
-      DUNE_Y_VELOCITY = 4;
+      PLAYER_Y_VELOCITY = -1;
+      DUNE_Y_VELOCITY = 1;
     }
     return;
   }
@@ -120,29 +120,35 @@ const animateDunes = () => {
   DUNE_X += DUNE_SPEED_X * GAME_VELOCITY;
   if (!IS_JUMPING) {
     DUNE_Y += perfectY + 1;
-    if (perfectY > 0) {
+    if (perfectY >= 0) {
       if (DUNE_SPEED_X < 10) {
         DUNE_SPEED_X += 0.2;
       }
     }
     if (perfectY <= 0) {
       if (DUNE_SPEED_X > 3) {
-        DUNE_SPEED_X -= 0.1;
+        // DUNE_SPEED_X -= 0.1;
       }
     }
   }
   if (IS_JUMPING) {
-    DUNE_Y += perfectY - DUNE_Y_VELOCITY;
-    DUNE_Y_VELOCITY -= GRAVITY;
-    PLAYER_Y += PLAYER_Y_VELOCITY;
-    PLAYER_Y_VELOCITY += GRAVITY;
-    if (Math.floor(PLAYER_Y) >= MIN_DUNE_Y - 15) {
-      console.log(PLAYER_Y);
+    if (y <= 330 && DUNE_Y_VELOCITY < 0) {
+      DUNE_Y += perfectY + 1;
+    } else {
+      DUNE_Y += -DUNE_Y_VELOCITY;
+      DUNE_Y_VELOCITY -= GRAVITY;
+    }
+    if (PLAYER_Y >= HEIGHT - (200 - 15) && PLAYER_Y_VELOCITY > 0) {
+      PLAYER_Y = HEIGHT - (200 - 15);
+    } else {
+      PLAYER_Y += PLAYER_Y_VELOCITY;
+      PLAYER_Y_VELOCITY += GRAVITY;
+    }
+    const normalizedY = y - PLAYER_Y;
+    if (Math.floor(normalizedY) <= 15) {
       IS_JUMPING = false;
       PLAYER_Y_VELOCITY = 0;
       DUNE_Y_VELOCITY = 0;
-      DUNE_Y += perfectY;
-      PLAYER_Y = HEIGHT - (200 - 15);
       SET_ANGLE = true;
     }
   }
@@ -192,10 +198,10 @@ const animate = () => {
     }
   }
   if (keyStates["ArrowLeft"] && IS_JUMPING && !SET_ANGLE) {
-    ANGLE_RADIANS -= 0.1;
+    ANGLE_RADIANS -= 0.07;
   }
   if (keyStates["ArrowRight"] && IS_JUMPING && !SET_ANGLE) {
-    ANGLE_RADIANS += 0.1;
+    ANGLE_RADIANS += 0.07;
   }
   if (
     !keyStates["ArrowRight"] &&
