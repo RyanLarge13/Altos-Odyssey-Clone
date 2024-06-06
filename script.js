@@ -34,8 +34,8 @@ const handleKeyDown = (e) => {
     if (!IS_JUMPING) {
       IS_JUMPING = true;
       SET_ANGLE = false;
-      PLAYER_Y_VELOCITY = -1;
-      DUNE_Y_VELOCITY = 1;
+      PLAYER_Y_VELOCITY -= 1;
+      DUNE_Y_VELOCITY += 1;
     }
     return;
   }
@@ -65,7 +65,7 @@ for (let i = 0; i < srcs.length; i++) {
 // }
 
 const heightMap1 = new HeightMap();
-const newMap = heightMap1.generateSmoothHeightMap(20000, 500, 40, 50);
+const newMap = heightMap1.generateSmoothHeightMap(20000, 300, 40, 50);
 // const newMap1 = heightMap1.generateComplexHeightMap(4000, 1);
 const dune1 = new Dune(newMap, 10);
 const dunePoints = dune1.generateCubicBezierPoints();
@@ -77,23 +77,14 @@ const update = (ani, newSpeed, newVelocity) => {
   ani.move(newSpeed, newVelocity);
 };
 
-const calcY = (points) => {
-  const targetX = DUNE_X + (215 + DUNE_SPEED_X / 2);
-  for (let i = 0; i < points.length - 15; i++) {
+const calcY = (points, targetX) => {
+  for (let i = 0; i < points.length - 1; i++) {
     if (points[i].x <= targetX && points[i + 1].x > targetX) {
       const p0 = points[i];
       const p1 = points[i + 1];
       const t = (targetX - p0.x) / (p1.x - p0.x);
-      const y = Math.floor(p0.y + t * (p1.y - p0.y) - DUNE_Y);
-      const p0a = points[i];
-      const p1a = points[i + 15];
-      const ta = (targetX + 45 - p0a.x) / (p1a.x - p0a.x);
-      const ya = Math.floor(p0a.y + ta * (p1a.y - p0a.y) - DUNE_Y);
-      return {
-        y: y,
-        futureY: ya,
-        futureX: points[i + 45].x,
-      };
+      const y = Math.round(p0.y + t * (p1.y - p0.y) - DUNE_Y);
+      return { y: y, x: points[i].x };
     }
   }
   return null;
@@ -111,17 +102,19 @@ const animateDunes = () => {
   ctx.closePath();
   ctx.fillStyle = "#be9128";
   ctx.fill();
-  const { y, futureX, futureY } = calcY(points);
-  const d = futureX - (DUNE_X + 180);
-  const h = futureY - y;
+  const start = calcY(points, DUNE_X + 195);
+  const mid = calcY(points, DUNE_X + 218.5);
+  const end = calcY(points, DUNE_X + 225);
+  const d = end.x - start.x;
+  const h = end.y - start.y;
   if (SET_ANGLE) {
     ANGLE_RADIANS = Math.atan2(h, d);
   }
-  // const angle = angleRadians * (180 / Math.PI);
-  let perfectY = y - MIN_DUNE_Y;
+  // const angle = ANGLE_RADIANS * (180 / Math.PI);
+  const perfectY = mid.y - (MIN_DUNE_Y - 1);
   DUNE_X += DUNE_SPEED_X * GAME_VELOCITY;
+  DUNE_Y += perfectY;
   if (!IS_JUMPING) {
-    DUNE_Y += perfectY + 1;
     if (perfectY >= 0) {
       if (DUNE_SPEED_X < 12) {
         DUNE_SPEED_X += 0.1;
@@ -134,45 +127,10 @@ const animateDunes = () => {
     }
   }
   if (IS_JUMPING) {
-    if (!PREV_Y_DUNE) {
-      PREV_Y_DUNE = DUNE_Y_VELOCITY;
-    }
-    if (!PREV_Y_PLAYER) {
-      PREV_Y_PLAYER = PLAYER_Y_VELOCITY;
-    }
-    if (y <= 330) {
-      DUNE_Y += perfectY + 1;
-    } else {
-      DUNE_Y += -DUNE_Y_VELOCITY;
-      DUNE_Y_VELOCITY -= GRAVITY;
-    }
-    if (PLAYER_Y >= HEIGHT - (200 - 15)) {
-      PLAYER_Y = HEIGHT - (200 - 15);
-      // DUNE_Y += -DUNE_Y_VELOCITY;
-    } else {
-      PLAYER_Y += PLAYER_Y_VELOCITY;
-      PLAYER_Y_VELOCITY += GRAVITY;
-    }
-    const playerSign = Math.sign(PLAYER_Y_VELOCITY - PREV_Y_PLAYER);
-    const duneSign = Math.sign(DUNE_Y_VELOCITY - PREV_Y_DUNE);
-    console.log(ANGLE_RADIANS);
-    const checkForLand = () => {
-      const normalizedY = y - PLAYER_Y;
-      if (Math.floor(normalizedY) <= 15) {
-        if (duneSign >= 0 && playerSign <= 0) {
-          // DUNE_Y_VELOCITY = 2;
-          PLAYER_Y_VELOCITY = -2;
-          PLAYER_Y += PLAYER_Y_VELOCITY;
-          // DUNE_Y += -DUNE_Y_VELOCITY;
-          return;
-        }
-        IS_JUMPING = false;
-        PLAYER_Y_VELOCITY = 0;
-        DUNE_Y_VELOCITY = 0;
-        SET_ANGLE = true;
-      }
-    };
-    checkForLand();
+    DUNE_Y += -DUNE_Y_VELOCITY;
+    DUNE_Y_VELOCITY -= GRAVITY;
+    PLAYER_Y += PLAYER_Y_VELOCITY;
+    PLAYER_Y_VELOCITY += GRAVITY;
   }
   const boarder = animations["boarder"];
   ctx.save();
