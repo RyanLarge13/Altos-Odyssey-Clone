@@ -34,8 +34,8 @@ const handleKeyDown = (e) => {
     if (!IS_JUMPING) {
       IS_JUMPING = true;
       SET_ANGLE = false;
-      PLAYER_Y_VELOCITY -= 1;
-      DUNE_Y_VELOCITY += 1;
+      PLAYER_Y_VELOCITY = -2;
+      DUNE_Y_VELOCITY = 2;
     }
     return;
   }
@@ -90,6 +90,41 @@ const calcY = (points, targetX) => {
   return null;
 };
 
+const checkIfFalling = () => {
+  const deltaDune = DUNE_Y - PREV_Y_DUNE;
+  const deltaPlayer = PLAYER_Y - PREV_Y_PLAYER;
+  let duneUp;
+  let playerDown;
+  if (deltaDune < 0) {
+    duneUp = false;
+  }
+  if (deltaDune >= 0) {
+    duneUp = true;
+  }
+  if (deltaDune) {
+    console.log(PLAYER_Y);
+  }
+  if (deltaPlayer < 0) {
+    playerDown = false;
+  }
+  if (deltaPlayer >= 0) {
+    playerDown = true;
+  }
+  return { playerDown: playerDown, duneUp: duneUp };
+};
+
+const checkLanding = (perfectY) => {
+  let playerEnd = false;
+  let duneEnd = false;
+  if (perfectY <= 0) {
+    duneEnd = true;
+  }
+  if (PLAYER_Y >= HEIGHT - (200 - 15)) {
+    playerEnd = true;
+  }
+  return { playerEnd: playerEnd, duneEnd: duneEnd };
+};
+
 const animateDunes = () => {
   const points = dunes[0];
   ctx.moveTo(points[0].x - DUNE_X, points[0].y - DUNE_Y);
@@ -112,9 +147,15 @@ const animateDunes = () => {
   }
   // const angle = ANGLE_RADIANS * (180 / Math.PI);
   const perfectY = mid.y - (MIN_DUNE_Y - 1);
+  if (!PREV_Y_DUNE) {
+    PREV_Y_DUNE = DUNE_Y;
+  }
+  if (!PREV_Y_PLAYER) {
+    PREV_Y_PLAYER = PLAYER_Y;
+  }
   DUNE_X += DUNE_SPEED_X * GAME_VELOCITY;
-  DUNE_Y += perfectY;
   if (!IS_JUMPING) {
+    DUNE_Y += perfectY;
     if (perfectY >= 0) {
       if (DUNE_SPEED_X < 12) {
         DUNE_SPEED_X += 0.1;
@@ -131,6 +172,29 @@ const animateDunes = () => {
     DUNE_Y_VELOCITY -= GRAVITY;
     PLAYER_Y += PLAYER_Y_VELOCITY;
     PLAYER_Y_VELOCITY += GRAVITY;
+    const { playerDown, duneUp } = checkIfFalling();
+    // console.log(playerDown, duneUp);
+    if (playerDown && duneUp) {
+      const { playerEnd, duneEnd } = checkLanding(perfectY);
+      if (duneEnd && playerEnd) {
+        IS_JUMPING = false;
+        SET_ANGLE = true;
+        DUNE_Y += perfectY;
+        PLAYER_Y = HEIGHT - (200 - 15);
+        DUNE_Y_VELOCITY = 0;
+        PLAYER_Y_VELOCITY = 0;
+      }
+      if (duneEnd && !playerEnd) {
+        DUNE_Y_VELOCITY = 0;
+        DUNE_Y += perfectY;
+        PLAYER_Y_VELOCITY += 0.25;
+      }
+      if (playerEnd) {
+        PLAYER_Y_VELOCITY = 0;
+      }
+    }
+    PREV_Y_DUNE = DUNE_Y;
+    PREV_Y_PLAYER = PLAYER_Y;
   }
   const boarder = animations["boarder"];
   ctx.save();
