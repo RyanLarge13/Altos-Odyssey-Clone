@@ -1,11 +1,11 @@
-export const WIDTH = 1000;
-export const HEIGHT = 500;
+const HEIGHT = window.innerHeight;
+const WIDTH = window.innerWidth;
 
 export const srcs = [
   {
     name: "sky",
     src: "../images/sky.png",
-    initializedOffset: { x: 0, y: HEIGHT },
+    initializedOffset: { x: 0, y: HEIGHT * 0.6 },
     translation: { x: false, y: true },
   },
   {

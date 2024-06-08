@@ -1,27 +1,29 @@
 import Animation from "./scripts/animations.js";
 import Dune from "./scripts/dunes.js";
 import HeightMap from "./scripts/heightMaps.js";
-import { HEIGHT, WIDTH, srcs } from "./constants.js";
+import { srcs } from "./constants.js";
 
 const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
 
-const MIN_DUNE_Y = 330;
 const GRAVITY = 0.05;
 const keyStates = {
   ArrowUp: false,
   ArrowRight: false,
   ArrowLeft: false,
 };
+let HEIGHT = window.innerHeight;
+let WIDTH = window.innerWidth;
 let animations = {};
 let dunes = [];
+const MIN_DUNE_Y = HEIGHT - HEIGHT / 3;
 let GAME_VELOCITY = 1;
 let DUNE_X = 0;
 let DUNE_Y = 0;
 let DUNE_SPEED_X = 10;
 let DUNE_Y_VELOCITY = 0;
 let PLAYER_Y_VELOCITY = 0;
-let PLAYER_Y = HEIGHT - (200 - 15);
+let PLAYER_Y = HEIGHT - HEIGHT / 3 - 15;
 let IS_JUMPING = false;
 let SET_ANGLE = true;
 let ANGLE_RADIANS = 0;
@@ -29,6 +31,16 @@ let PREV_Y_DUNE = null;
 let PREV_Y_PLAYER = null;
 let ANGLE = 0;
 let DID_LIFT = false;
+
+const resize = () => {
+  const width = window.innerWidth;
+  const height = window.innerHeight;
+  canvas.height = height;
+  canvas.width = width;
+  HEIGHT = height;
+  WIDTH = width;
+};
+resize();
 
 const handleKeyDown = (e) => {
   const key = e.key;
@@ -61,7 +73,7 @@ for (let i = 0; i < srcs.length; i++) {
 }
 
 const heightMap1 = new HeightMap();
-const newMap = heightMap1.generateSmoothHeightMap(20000, 300, 60, 50);
+const newMap = heightMap1.generateSmoothHeightMap(20000, 300, 30, 50);
 const dune1 = new Dune(newMap, 10);
 const dunePoints = dune1.generateCubicBezierPoints();
 dunes.push(dunePoints);
@@ -111,7 +123,7 @@ const checkLanding = (perfectY) => {
   if (perfectY <= 0) {
     duneEnd = true;
   }
-  if (PLAYER_Y >= HEIGHT - (200 - 15)) {
+  if (PLAYER_Y >= HEIGHT - HEIGHT / 3 - 15) {
     playerEnd = true;
   }
   return { playerEnd: playerEnd, duneEnd: duneEnd };
@@ -124,7 +136,7 @@ const animateDunes = () => {
   for (let i = 1; i < points.length; i++) {
     ctx.lineTo(points[i].x - DUNE_X, points[i].y - DUNE_Y);
   }
-  ctx.lineTo(points[points.length - 1].x - DUNE_X, 800);
+  ctx.lineTo(points[points.length - 1].x - DUNE_X, HEIGHT + DUNE_Y);
   ctx.lineTo(0, 800);
   ctx.closePath();
   ctx.fillStyle = "#be9128";
@@ -149,7 +161,7 @@ const animateDunes = () => {
   if (!IS_JUMPING) {
     DUNE_Y += perfectY;
     if (perfectY >= 0) {
-      if (DUNE_SPEED_X < 12) {
+      if (DUNE_SPEED_X < 15) {
         DUNE_SPEED_X += 0.1;
       }
     }
@@ -172,8 +184,8 @@ const animateDunes = () => {
     if (perfectY <= 0) {
       DUNE_Y += perfectY;
     }
-    if (PLAYER_Y >= HEIGHT - (200 - 15)) {
-      PLAYER_Y = HEIGHT - (200 - 15);
+    if (PLAYER_Y >= HEIGHT - HEIGHT / 3 - 15) {
+      PLAYER_Y = HEIGHT - HEIGHT / 3 - 15;
     }
     if (playerDown && duneUp) {
       const { playerEnd, duneEnd } = checkLanding(perfectY);
@@ -181,7 +193,7 @@ const animateDunes = () => {
         IS_JUMPING = false;
         SET_ANGLE = true;
         DUNE_Y += perfectY;
-        PLAYER_Y = HEIGHT - (200 - 15);
+        PLAYER_Y = HEIGHT - HEIGHT / 3 - 15;
         DUNE_Y_VELOCITY = 0;
         PLAYER_Y_VELOCITY = 0;
         DID_LIFT = false;
@@ -192,7 +204,7 @@ const animateDunes = () => {
         DUNE_Y += perfectY;
       }
       if (playerEnd && !duneEnd) {
-        PLAYER_Y = HEIGHT - (200 - 15);
+        PLAYER_Y = HEIGHT - HEIGHT / 3 - 15;
         PLAYER_Y_VELOCITY = 0;
         DUNE_Y_VELOCITY >= -15 ? (DUNE_Y_VELOCITY -= 0.5) : null;
       }
@@ -265,5 +277,6 @@ const animate = () => {
 
 animate();
 animateDunes();
+window.addEventListener("resize", resize);
 window.addEventListener("keydown", handleKeyDown);
 window.addEventListener("keyup", handleKeyUp);
