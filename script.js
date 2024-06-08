@@ -1,7 +1,7 @@
 import Animation from "./scripts/animations.js";
 import Dune from "./scripts/dunes.js";
 import HeightMap from "./scripts/heightMaps.js";
-import { HEIGHT, WIDTH, srcs, heightMaps } from "./constants.js";
+import { HEIGHT, WIDTH, srcs } from "./constants.js";
 
 const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
@@ -27,6 +27,8 @@ let SET_ANGLE = true;
 let ANGLE_RADIANS = 0;
 let PREV_Y_DUNE = null;
 let PREV_Y_PLAYER = null;
+let ANGLE = 0;
+let DID_LIFT = false;
 
 const handleKeyDown = (e) => {
   const key = e.key;
@@ -58,15 +60,8 @@ for (let i = 0; i < srcs.length; i++) {
   animations[name] = newAni;
 }
 
-// for (let i = 0; i < heightMaps.length; i++) {
-//   const dune = new Dune(heightMaps[i], 10);
-//   const dunePoints = dune.generateCubicBezierPoints();
-//   dunes.push(dunePoints);
-// }
-
 const heightMap1 = new HeightMap();
-const newMap = heightMap1.generateSmoothHeightMap(20000, 300, 40, 50);
-// const newMap1 = heightMap1.generateComplexHeightMap(4000, 1);
+const newMap = heightMap1.generateSmoothHeightMap(20000, 300, 60, 50);
 const dune1 = new Dune(newMap, 10);
 const dunePoints = dune1.generateCubicBezierPoints();
 dunes.push(dunePoints);
@@ -101,9 +96,6 @@ const checkIfFalling = () => {
   if (deltaDune >= 0) {
     duneUp = true;
   }
-  if (deltaDune) {
-    console.log(PLAYER_Y);
-  }
   if (deltaPlayer < 0) {
     playerDown = false;
   }
@@ -137,15 +129,15 @@ const animateDunes = () => {
   ctx.closePath();
   ctx.fillStyle = "#be9128";
   ctx.fill();
-  const start = calcY(points, DUNE_X + 195);
   const mid = calcY(points, DUNE_X + 218.5);
-  const end = calcY(points, DUNE_X + 225);
-  const d = end.x - start.x;
-  const h = end.y - start.y;
   if (SET_ANGLE) {
+    const start = calcY(points, DUNE_X + 195);
+    const end = calcY(points, DUNE_X + 225);
+    const d = end.x - start.x;
+    const h = end.y - start.y;
     ANGLE_RADIANS = Math.atan2(h, d);
+    ANGLE = ANGLE_RADIANS * (180 / Math.PI);
   }
-  // const angle = ANGLE_RADIANS * (180 / Math.PI);
   const perfectY = mid.y - (MIN_DUNE_Y - 1);
   if (!PREV_Y_DUNE) {
     PREV_Y_DUNE = DUNE_Y;
@@ -170,10 +162,19 @@ const animateDunes = () => {
   if (IS_JUMPING) {
     DUNE_Y += -DUNE_Y_VELOCITY;
     DUNE_Y_VELOCITY -= GRAVITY;
+    if (ANGLE < 0 && !DID_LIFT) {
+      PLAYER_Y_VELOCITY += ANGLE / 10;
+      DID_LIFT = true;
+    }
     PLAYER_Y += PLAYER_Y_VELOCITY;
     PLAYER_Y_VELOCITY += GRAVITY;
     const { playerDown, duneUp } = checkIfFalling();
-    // console.log(playerDown, duneUp);
+    if (perfectY <= 0) {
+      DUNE_Y += perfectY;
+    }
+    if (PLAYER_Y >= HEIGHT - (200 - 15)) {
+      PLAYER_Y = HEIGHT - (200 - 15);
+    }
     if (playerDown && duneUp) {
       const { playerEnd, duneEnd } = checkLanding(perfectY);
       if (duneEnd && playerEnd) {
@@ -183,14 +184,17 @@ const animateDunes = () => {
         PLAYER_Y = HEIGHT - (200 - 15);
         DUNE_Y_VELOCITY = 0;
         PLAYER_Y_VELOCITY = 0;
+        DID_LIFT = false;
       }
+      // DUNE_SPEED_X <= 5 ? (DUNE_SPEED_X += 0.01) : null;
       if (duneEnd && !playerEnd) {
         DUNE_Y_VELOCITY = 0;
         DUNE_Y += perfectY;
-        PLAYER_Y_VELOCITY += 0.25;
       }
-      if (playerEnd) {
+      if (playerEnd && !duneEnd) {
+        PLAYER_Y = HEIGHT - (200 - 15);
         PLAYER_Y_VELOCITY = 0;
+        DUNE_Y_VELOCITY >= -15 ? (DUNE_Y_VELOCITY -= 0.5) : null;
       }
     }
     PREV_Y_DUNE = DUNE_Y;
@@ -242,10 +246,10 @@ const animate = () => {
     }
   }
   if (keyStates["ArrowLeft"] && IS_JUMPING && !SET_ANGLE) {
-    ANGLE_RADIANS -= 0.07;
+    ANGLE_RADIANS -= 0.05;
   }
   if (keyStates["ArrowRight"] && IS_JUMPING && !SET_ANGLE) {
-    ANGLE_RADIANS += 0.07;
+    ANGLE_RADIANS += 0.05;
   }
   if (
     !keyStates["ArrowRight"] &&
