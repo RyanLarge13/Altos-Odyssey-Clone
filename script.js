@@ -31,6 +31,7 @@ let PREV_Y_DUNE = null;
 let PREV_Y_PLAYER = null;
 let ANGLE = 0;
 let DID_LIFT = false;
+let DUNE_ITERATION = 0;
 
 const resize = () => {
   const width = window.innerWidth;
@@ -72,11 +73,16 @@ for (let i = 0; i < srcs.length; i++) {
   animations[name] = newAni;
 }
 
-const heightMap1 = new HeightMap();
-const newMap = heightMap1.generateSmoothHeightMap(20000, 300, 30, 50);
-const dune1 = new Dune(newMap, 10);
-const dunePoints = dune1.generateCubicBezierPoints();
-dunes.push(dunePoints);
+const generateNextMap = () => {
+  const heightMap1 = new HeightMap();
+  const newMap = heightMap1.generateSmoothHeightMap(20000, 300, 30, 10);
+  const dune1 = new Dune(newMap, 10);
+  const dunePoints = dune1.generateCubicBezierPoints();
+  return dunePoints;
+};
+
+const newDune = generateNextMap();
+dunes.push(newDune);
 
 const keys = Object.keys(animations);
 
@@ -130,14 +136,14 @@ const checkLanding = (perfectY) => {
 };
 
 const animateDunes = () => {
-  const points = dunes[0];
+  const points = dunes[DUNE_ITERATION];
   ctx.moveTo(points[0].x - DUNE_X, points[0].y - DUNE_Y);
   ctx.beginPath();
   for (let i = 1; i < points.length; i++) {
     ctx.lineTo(points[i].x - DUNE_X, points[i].y - DUNE_Y);
   }
   ctx.lineTo(points[points.length - 1].x - DUNE_X, HEIGHT + DUNE_Y);
-  ctx.lineTo(0, 800);
+  ctx.lineTo(0, 1500);
   ctx.closePath();
   ctx.fillStyle = "#be9128";
   ctx.fill();
@@ -145,6 +151,13 @@ const animateDunes = () => {
   if (SET_ANGLE) {
     const start = calcY(points, DUNE_X + 195);
     const end = calcY(points, DUNE_X + 225);
+    if (!end) {
+      const nextDune = generateNextMap();
+      dunes.push(nextDune);
+      DUNE_ITERATION++;
+      DUNE_X = WIDTH;
+      return;
+    }
     const d = end.x - start.x;
     const h = end.y - start.y;
     ANGLE_RADIANS = Math.atan2(h, d);
@@ -216,7 +229,13 @@ const animateDunes = () => {
   ctx.save();
   ctx.translate(210, PLAYER_Y);
   ctx.rotate(ANGLE_RADIANS);
-  ctx.drawImage(boarder.img, -boarder.img.width / 2, -boarder.img.height / 2);
+  ctx.drawImage(
+    boarder.img,
+    -boarder.img.width / 2,
+    -boarder.img.height / 2,
+    15,
+    15
+  );
   ctx.restore();
 };
 
