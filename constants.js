@@ -3,7 +3,7 @@ const WIDTH = window.innerWidth;
 
 const isProduction = window.location.hostname === "ryanlarge13.github.io";
 const repoName = "/Altos-Odyssey-Clone";
-const baseURL = isProduction ? window.location.hostname + repoName : "";
+const baseURL = isProduction ? `${window.location.origin}${repoName}` : "";
 
 export const srcs = [
   {
