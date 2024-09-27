@@ -17,13 +17,15 @@ let WIDTH = window.innerWidth;
 let animations = {};
 let dunes = [];
 let heightMaps = [];
+let minSearch = 2020;
 let GAME_VELOCITY = 1;
 let DUNE_X = 0;
 let DUNE_Y = 0;
 let DUNE_SPEED_X = 10;
 let DUNE_Y_VELOCITY = 0;
 let PLAYER_Y_VELOCITY = 0;
-let PLAYER_Y = HEIGHT - HEIGHT / 3;
+let CONTACT_POINT = HEIGHT - HEIGHT / 3;
+let PLAYER_Y = CONTACT_POINT;
 let IS_JUMPING = false;
 let SET_ANGLE = true;
 let ANGLE_RADIANS = 0;
@@ -88,6 +90,26 @@ const update = (ani, newSpeed, newVelocity) => {
   ani.move(newSpeed, newVelocity);
 };
 
+const findCoords = (points, target) => {
+  let h = 0;
+  let d = 0;
+  let y = 0;
+  for (let i = minSearch; i < minSearch + target; i++) {
+    if (points[i].x <= target && points[i + 1].x > target) {
+      minSearch = i;
+      const startX = points[i - 8].x;
+      const endX = points[i + 8].x;
+      const startY = points[i - 8].y;
+      const endY = points[i + 8].y;
+      h = endY - startY;
+      d = endX - startX;
+      y = points[i].y;
+      return { h, d, y };
+    }
+  }
+  return { h, d, y };
+};
+
 const animateDunes = () => {
   const points = dunes[DUNE_ITERATION];
   ctx.moveTo(points[0].x - DUNE_X, points[0].y - DUNE_Y);
@@ -100,16 +122,20 @@ const animateDunes = () => {
   ctx.closePath();
   ctx.fillStyle = "#be9128";
   ctx.fill();
-  DUNE_X += DUNE_SPEED_X * GAME_VELOCITY;
-  DUNE_Y = heightMaps[0][HEIGHT_MAP_ITERATION].y - (HEIGHT - HEIGHT / 3);
-  HEIGHT_MAP_ITERATION++;
-  const startX = heightMaps[0][HEIGHT_MAP_ITERATION - 8].x;
-  const endX = heightMaps[0][HEIGHT_MAP_ITERATION + 8].x;
-  const startY = heightMaps[0][HEIGHT_MAP_ITERATION - 8].y;
-  const endY = heightMaps[0][HEIGHT_MAP_ITERATION + 8].y;
-  const d = endX - startX;
-  const h = endY - startY;
+  const { h, d, y } = findCoords(points, 210 + DUNE_X);
+  let diff = y - CONTACT_POINT;
+  const comp = DUNE_Y - diff;
+  console.log(comp);
   ANGLE_RADIANS = Math.atan2(h, d);
+  ctx.beginPath();
+  ctx.arc(200, CONTACT_POINT, 3, 0, Math.PI * 2);
+  ctx.strokeStyle = "blue";
+  ctx.fillStyle = "lightblue";
+  ctx.fill();
+  ctx.stroke();
+  DUNE_X += DUNE_SPEED_X;
+  DUNE_SPEED_X += 0.01;
+  DUNE_Y = diff - comp / 5;
   const boarder = animations["boarder"];
   ctx.save();
   ctx.translate(200, PLAYER_Y);
