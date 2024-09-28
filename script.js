@@ -21,7 +21,7 @@ let DUNE_X = 0;
 let DUNE_Y = 0;
 let DUNE_SPEED_X = 10;
 let DUNE_Y_VELOCITY = 0;
-let CONTACT_POINT = HEIGHT - HEIGHT / 3;
+let CONTACT_POINT = HEIGHT - 150;
 let PLAYER_Y = CONTACT_POINT;
 let IS_JUMPING = false;
 let SET_ANGLE = true;
@@ -117,9 +117,9 @@ const animateDunes = () => {
   ctx.lineTo(points[points.length - 1].x - DUNE_X, HEIGHT + DUNE_Y);
   ctx.lineTo(0, HEIGHT);
   ctx.closePath();
-  ctx.fillStyle = "#be9128";
+  ctx.fillStyle = "#be7128";
   ctx.fill();
-  const targetX = 200 + DUNE_X + DUNE_SPEED_X;
+  const targetX = 150 + DUNE_X + DUNE_SPEED_X;
   const { h, d, y } = findCoords(points, targetX);
   if (!IS_JUMPING) {
     DUNE_Y = y - CONTACT_POINT - 7.5;
@@ -135,9 +135,10 @@ const animateDunes = () => {
     DUNE_Y_VELOCITY += 0.01;
   }
   DUNE_X += DUNE_SPEED_X;
+  DUNE_SPEED_X += 0.01;
   const boarder = animations["boarder"];
   ctx.save();
-  ctx.translate(200, PLAYER_Y);
+  ctx.translate(150, PLAYER_Y);
   ctx.rotate(ANGLE_RADIANS);
   ctx.drawImage(
     boarder.img,
@@ -178,6 +179,26 @@ const animate = () => {
       case "bg3":
         ctx.drawImage(ani.img, ani.offsetXY.x + WIDTH * 2, ani.offsetXY.y);
         update(ani, { x: 0.5, y: 0 }, { x: -1, y: 0 });
+        break;
+      case "mt1":
+        ctx.drawImage(ani.img, ani.offsetXY.x + WIDTH * 0.5, ani.offsetXY.y);
+        update(ani, { x: 0.3, y: 0 }, { x: -1, y: 0 });
+        break;
+      case "mt2":
+        ctx.drawImage(ani.img, ani.offsetXY.x + WIDTH, ani.offsetXY.y);
+        update(ani, { x: 0.2, y: 0 }, { x: -1, y: 0 });
+        break;
+      case "mt3":
+        ctx.drawImage(ani.img, ani.offsetXY.x + WIDTH * 1.25, ani.offsetXY.y);
+        update(ani, { x: 0.7, y: 0 }, { x: -1, y: 0 });
+        break;
+      case "r1":
+        ctx.drawImage(ani.img, ani.offsetXY.x + WIDTH, ani.offsetXY.y);
+        update(ani, { x: 0.3, y: 0 }, { x: -1, y: 0 });
+        break;
+      case "r2":
+        ctx.drawImage(ani.img, ani.offsetXY.x + WIDTH, ani.offsetXY.y);
+        update(ani, { x: 0.6, y: 0 }, { x: -1, y: 0 });
         break;
       case "sun":
         update(ani, { x: 0.001, y: 0.01 }, { x: 1, y: -1 });
