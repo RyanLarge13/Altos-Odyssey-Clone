@@ -6,7 +6,6 @@ import { srcs } from "./constants.js";
 const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
 
-const GRAVITY = 0.05;
 const keyStates = {
   ArrowUp: false,
   ArrowRight: false,
@@ -18,19 +17,16 @@ let animations = {};
 let dunes = [];
 let heightMaps = [];
 let minSearch = 2020;
-let GAME_VELOCITY = 1;
 let DUNE_X = 0;
 let DUNE_Y = 0;
 let DUNE_SPEED_X = 10;
 let DUNE_Y_VELOCITY = 0;
-let PLAYER_Y_VELOCITY = 0;
 let CONTACT_POINT = HEIGHT - HEIGHT / 3;
 let PLAYER_Y = CONTACT_POINT;
 let IS_JUMPING = false;
 let SET_ANGLE = true;
 let ANGLE_RADIANS = 0;
 let DUNE_ITERATION = 0;
-let HEIGHT_MAP_ITERATION = 21;
 
 const resize = () => {
   const width = window.innerWidth;
@@ -48,8 +44,7 @@ const handleKeyDown = (e) => {
     if (!IS_JUMPING) {
       IS_JUMPING = true;
       SET_ANGLE = false;
-      PLAYER_Y_VELOCITY = -0.5;
-      DUNE_Y_VELOCITY = 0.5;
+      DUNE_Y_VELOCITY = -0.1;
     }
     return;
   }
@@ -97,10 +92,10 @@ const findCoords = (points, target) => {
   for (let i = minSearch; i < minSearch + target; i++) {
     if (points[i].x <= target && points[i + 1].x > target) {
       minSearch = i;
-      const startX = points[i - 8].x;
-      const endX = points[i + 8].x;
-      const startY = points[i - 8].y;
-      const endY = points[i + 8].y;
+      const startX = points[i - 210].x;
+      const endX = points[i + 210].x;
+      const startY = points[i - 210].y;
+      const endY = points[i + 210].y;
       h = endY - startY;
       d = endX - startX;
       y = points[i].y;
@@ -109,6 +104,8 @@ const findCoords = (points, target) => {
   }
   return { h, d, y };
 };
+
+const colliding = (a, b) => Math.abs(a - b) <= 5;
 
 const animateDunes = () => {
   const points = dunes[DUNE_ITERATION];
@@ -122,20 +119,22 @@ const animateDunes = () => {
   ctx.closePath();
   ctx.fillStyle = "#be9128";
   ctx.fill();
-  const { h, d, y } = findCoords(points, 210 + DUNE_X);
-  let diff = y - CONTACT_POINT;
-  const comp = DUNE_Y - diff;
-  console.log(comp);
-  ANGLE_RADIANS = Math.atan2(h, d);
-  ctx.beginPath();
-  ctx.arc(200, CONTACT_POINT, 3, 0, Math.PI * 2);
-  ctx.strokeStyle = "blue";
-  ctx.fillStyle = "lightblue";
-  ctx.fill();
-  ctx.stroke();
+  const targetX = 200 + DUNE_X + DUNE_SPEED_X;
+  const { h, d, y } = findCoords(points, targetX);
+  if (!IS_JUMPING) {
+    DUNE_Y = y - CONTACT_POINT - 7.5;
+    ANGLE_RADIANS = Math.atan2(h, d);
+  } else {
+    if (colliding(y - CONTACT_POINT - 7.5, DUNE_Y)) {
+      DUNE_Y = y - CONTACT_POINT - 7.5;
+      IS_JUMPING = false;
+      SET_ANGLE = true;
+      DUNE_Y_VELOCITY = 0;
+    }
+    DUNE_Y += 10 * DUNE_Y_VELOCITY;
+    DUNE_Y_VELOCITY += 0.01;
+  }
   DUNE_X += DUNE_SPEED_X;
-  DUNE_SPEED_X += 0.01;
-  DUNE_Y = diff - comp / 5;
   const boarder = animations["boarder"];
   ctx.save();
   ctx.translate(200, PLAYER_Y);
@@ -143,7 +142,7 @@ const animateDunes = () => {
   ctx.drawImage(
     boarder.img,
     -(boarder.img.width / 2 - 7.5),
-    -(boarder.img.height / 2),
+    -(boarder.img.height / 2 - 7.5),
     15,
     15
   );
