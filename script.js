@@ -69,7 +69,7 @@ for (let i = 0; i < srcs.length; i++) {
 
 const generateNextMap = () => {
   const heightMap1 = new HeightMap();
-  const newMap = heightMap1.generateSmoothHeightMap(20000, 300, 30, 10);
+  const newMap = heightMap1.generateSmoothHeightMap(10000, 150, 15, 10);
   const newDune = new Dune(newMap, 10);
   heightMaps.push(newMap);
   const dunePoints = newDune.generateCubicBezierPoints();
@@ -85,6 +85,19 @@ const update = (ani, newSpeed, newVelocity) => {
   ani.move(newSpeed, newVelocity);
 };
 
+let genMap = false;
+
+const checkEnd = (points) => {
+  const end = points[points.length - 2].x - DUNE_X;
+  if (end < WIDTH + 100 && !genMap) {
+    const newDune = generateNextMap();
+    dunes.push(newDune);
+    minSearch = 0;
+    DUNE_ITERATION++;
+    genMap = true;
+  }
+};
+
 const findCoords = (points, target) => {
   let h = 0;
   let d = 0;
@@ -92,10 +105,10 @@ const findCoords = (points, target) => {
   for (let i = minSearch; i < minSearch + target; i++) {
     if (points[i].x <= target && points[i + 1].x > target) {
       minSearch = i;
-      const startX = points[i - 210].x;
-      const endX = points[i + 210].x;
-      const startY = points[i - 210].y;
-      const endY = points[i + 210].y;
+      const startX = points[i - 80].x;
+      const endX = points[i + 80].x;
+      const startY = points[i - 80].y;
+      const endY = points[i + 80].y;
       h = endY - startY;
       d = endX - startX;
       y = points[i].y;
@@ -105,10 +118,11 @@ const findCoords = (points, target) => {
   return { h, d, y };
 };
 
-const colliding = (a, b) => Math.abs(a - b) <= 5;
+// const colliding = (a, b) => Math.abs(a - b) <= 5;
 
 const animateDunes = () => {
   const points = dunes[DUNE_ITERATION];
+  checkEnd(points);
   ctx.moveTo(points[0].x - DUNE_X, points[0].y - DUNE_Y);
   ctx.beginPath();
   for (let i = 1; i < points.length; i++) {
@@ -121,19 +135,8 @@ const animateDunes = () => {
   ctx.fill();
   const targetX = 150 + DUNE_X + DUNE_SPEED_X;
   const { h, d, y } = findCoords(points, targetX);
-  if (!IS_JUMPING) {
-    DUNE_Y = y - CONTACT_POINT - 7.5;
-    ANGLE_RADIANS = Math.atan2(h, d);
-  } else {
-    if (colliding(y - CONTACT_POINT - 7.5, DUNE_Y)) {
-      DUNE_Y = y - CONTACT_POINT - 7.5;
-      IS_JUMPING = false;
-      SET_ANGLE = true;
-      DUNE_Y_VELOCITY = 0;
-    }
-    DUNE_Y += 10 * DUNE_Y_VELOCITY;
-    DUNE_Y_VELOCITY += 0.01;
-  }
+  DUNE_Y = y - CONTACT_POINT - 7.5;
+  ANGLE_RADIANS = Math.atan2(h, d);
   DUNE_X += DUNE_SPEED_X;
   DUNE_SPEED_X += 0.01;
   const boarder = animations["boarder"];
