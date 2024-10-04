@@ -19,14 +19,14 @@ let heightMaps = [];
 let minSearch = 2020;
 let DUNE_X = 0;
 let DUNE_Y = 0;
-let DUNE_SPEED_X = 10;
+let DUNE_SPEED_X = 7;
 let DUNE_Y_VELOCITY = 0;
 let CONTACT_POINT = HEIGHT - 150;
 let PLAYER_Y = CONTACT_POINT;
 let IS_JUMPING = false;
 let SET_ANGLE = true;
 let ANGLE_RADIANS = 0;
-let DUNE_ITERATION = 0;
+let DUNE_ITERATION = 1;
 
 const resize = () => {
   const width = window.innerWidth;
@@ -67,16 +67,16 @@ for (let i = 0; i < srcs.length; i++) {
   animations[name] = newAni;
 }
 
-const generateNextMap = () => {
+const generateNextMap = (startX) => {
   const heightMap1 = new HeightMap();
-  const newMap = heightMap1.generateSmoothHeightMap(10000, 150, 15, 10);
+  const newMap = heightMap1.generateSmoothHeightMap(startX, 5000, 150, 15, 10);
   const newDune = new Dune(newMap, 10);
   heightMaps.push(newMap);
   const dunePoints = newDune.generateCubicBezierPoints();
   return dunePoints;
 };
 
-const newDune = generateNextMap();
+const newDune = generateNextMap(0);
 dunes.push(newDune);
 
 const keys = Object.keys(animations);
@@ -85,16 +85,21 @@ const update = (ani, newSpeed, newVelocity) => {
   ani.move(newSpeed, newVelocity);
 };
 
-let genMap = false;
+let isEnd = false;
+let length = dunes[0].length - 2;
 
 const checkEnd = (points) => {
-  const end = points[points.length - 2].x - DUNE_X;
-  if (end < WIDTH + 100 && !genMap) {
-    const newDune = generateNextMap();
-    dunes.push(newDune);
-    minSearch = 0;
+  if (points[points.length - 2].x - DUNE_X <= WIDTH && !isEnd) {
+    const newDune = generateNextMap(5000 * DUNE_ITERATION);
     DUNE_ITERATION++;
-    genMap = true;
+    dunes[0].splice(dunes[0].length, 0, ...newDune);
+    isEnd = true;
+  }
+  if (points[length].x - DUNE_X < 0 && isEnd) {
+    console.log(length);
+    dunes[0].splice(0, length);
+    minSearch = 0;
+    isEnd = false;
   }
 };
 
@@ -121,7 +126,7 @@ const findCoords = (points, target) => {
 // const colliding = (a, b) => Math.abs(a - b) <= 5;
 
 const animateDunes = () => {
-  const points = dunes[DUNE_ITERATION];
+  const points = dunes[0];
   checkEnd(points);
   ctx.moveTo(points[0].x - DUNE_X, points[0].y - DUNE_Y);
   ctx.beginPath();
@@ -138,7 +143,12 @@ const animateDunes = () => {
   DUNE_Y = y - CONTACT_POINT - 7.5;
   ANGLE_RADIANS = Math.atan2(h, d);
   DUNE_X += DUNE_SPEED_X;
-  DUNE_SPEED_X += 0.01;
+  if (ANGLE_RADIANS * 10 >= 1.5 && DUNE_SPEED_X < 10) {
+    DUNE_SPEED_X += 0.01;
+  }
+  if (ANGLE_RADIANS * 10 < 1.5 && DUNE_SPEED_X > 5) {
+    DUNE_SPEED_X -= 0.01;
+  }
   const boarder = animations["boarder"];
   ctx.save();
   ctx.translate(150, PLAYER_Y);
@@ -172,36 +182,36 @@ const animate = () => {
         update(ani, { x: 0.04, y: 0 }, { x: -1, y: 0 });
         break;
       case "bg1":
-        ctx.drawImage(ani.img, ani.offsetXY.x + WIDTH * 2, ani.offsetXY.y);
+        ctx.drawImage(ani.img, ani.offsetXY.x + WIDTH * 2 + 58, ani.offsetXY.y);
         update(ani, { x: 0.1, y: 0 }, { x: -1, y: 0 });
         break;
       case "bg2":
-        ctx.drawImage(ani.img, ani.offsetXY.x + WIDTH * 2, ani.offsetXY.y);
+        ctx.drawImage(ani.img, ani.offsetXY.x + WIDTH * 2 + 60, ani.offsetXY.y);
         update(ani, { x: 0.2, y: 0 }, { x: -1, y: 0 });
         break;
       case "bg3":
-        ctx.drawImage(ani.img, ani.offsetXY.x + WIDTH * 2, ani.offsetXY.y);
+        // ctx.drawImage(ani.img, ani.offsetXY.x + WIDTH, ani.offsetXY.y);
         update(ani, { x: 0.5, y: 0 }, { x: -1, y: 0 });
         break;
       case "mt1":
-        ctx.drawImage(ani.img, ani.offsetXY.x + WIDTH * 0.5, ani.offsetXY.y);
+        // ctx.drawImage(ani.img, ani.offsetXY.x + WIDTH, ani.offsetXY.y);
         update(ani, { x: 0.3, y: 0 }, { x: -1, y: 0 });
         break;
       case "mt2":
-        ctx.drawImage(ani.img, ani.offsetXY.x + WIDTH, ani.offsetXY.y);
+        // ctx.drawImage(ani.img, ani.offsetXY.x + WIDTH, ani.offsetXY.y);
         update(ani, { x: 0.2, y: 0 }, { x: -1, y: 0 });
         break;
       case "mt3":
-        ctx.drawImage(ani.img, ani.offsetXY.x + WIDTH * 1.25, ani.offsetXY.y);
+        // ctx.drawImage(ani.img, ani.offsetXY.x + WIDTH, ani.offsetXY.y);
         update(ani, { x: 0.7, y: 0 }, { x: -1, y: 0 });
         break;
       case "r1":
-        ctx.drawImage(ani.img, ani.offsetXY.x + WIDTH, ani.offsetXY.y);
+        // ctx.drawImage(ani.img, ani.offsetXY.x + WIDTH, ani.offsetXY.y);
         update(ani, { x: 0.3, y: 0 }, { x: -1, y: 0 });
         break;
       case "r2":
-        ctx.drawImage(ani.img, ani.offsetXY.x + WIDTH, ani.offsetXY.y);
-        update(ani, { x: 0.6, y: 0 }, { x: -1, y: 0 });
+        // ctx.drawImage(ani.img, ani.offsetXY.x + WIDTH, ani.offsetXY.y);
+        update(ani, { x: 0.4, y: 0 }, { x: -1, y: 0 });
         break;
       case "sun":
         update(ani, { x: 0.001, y: 0.01 }, { x: 1, y: -1 });
