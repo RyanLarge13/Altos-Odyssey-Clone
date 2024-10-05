@@ -1,12 +1,24 @@
 class HeightMap {
   constructor() {}
-  generateSmoothHeightMap(startX, length, amplitude, frequency, xIncrement) {
+  generateSmoothHeightMap(
+    startX,
+    length,
+    amplitude,
+    frequency,
+    xIncrement,
+    targetAmps,
+    targetFreq
+  ) {
     const heightMap = [];
+    const ampStep = targetAmps / length;
+    const freqStep = targetFreq / length;
     for (let x = startX; x <= startX + length; x += xIncrement) {
+      amplitude += ampStep;
+      frequency += freqStep;
       const y = amplitude * Math.sin((frequency * x) / length) + x / 2;
       heightMap.push({ x, y });
     }
-    return heightMap;
+    return { map: heightMap, params: { amplitude, frequency } };
   }
   generateComplexHeightMap(length, xIncrement) {
     const heightMap = [];

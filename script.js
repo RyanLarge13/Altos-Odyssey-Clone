@@ -67,11 +67,27 @@ for (let i = 0; i < srcs.length; i++) {
   animations[name] = newAni;
 }
 
+// Max difference
+// AMP: -1000 - 750
+// FREQ: -100 - 150
+
+let prevAmp = 150;
+let prevFreq = 15;
+
 const generateNextMap = (startX) => {
   const heightMap1 = new HeightMap();
-  const newMap = heightMap1.generateSmoothHeightMap(startX, 5000, 150, 15, 10);
-  const newDune = new Dune(newMap, 10);
-  heightMaps.push(newMap);
+  const newMap = heightMap1.generateSmoothHeightMap(
+    startX,
+    5000,
+    prevAmp,
+    prevFreq,
+    0,
+    0
+  );
+  prevAmp = newMap.params.amplitude;
+  prevFreq = newMap.params.frequency;
+  const newDune = new Dune(newMap.map, 10);
+  heightMaps.push(newMap.map);
   const dunePoints = newDune.generateCubicBezierPoints();
   return dunePoints;
 };
