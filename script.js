@@ -71,6 +71,23 @@ for (let i = 0; i < srcs.length; i++) {
 // AMP: -1000 - 750
 // FREQ: -100 - 150
 
+let nextAmp = 100;
+let nextFreq = 15;
+
+const updateNewAmpAndFreq = () => {
+  const ampDiff = Math.random() * 300 * (Math.random() < 0.5 ? 1 : -1);
+  const freqDiff = Math.random() * 15;
+  console.log(freqDiff);
+  nextAmp += ampDiff;
+  nextFreq += freqDiff;
+  nextAmp = Math.max(-300, Math.min(nextAmp, 300));
+  nextFreq = Math.max(0, Math.min(nextFreq, 20));
+  if (nextFreq >= 20) {
+    nextFreq = 0;
+  }
+  console.log(nextAmp, nextFreq);
+};
+
 let prevAmp = 150;
 let prevFreq = 15;
 
@@ -81,11 +98,13 @@ const generateNextMap = (startX) => {
     5000,
     prevAmp,
     prevFreq,
-    0,
-    0
+    10,
+    nextAmp,
+    nextFreq
   );
   prevAmp = newMap.params.amplitude;
   prevFreq = newMap.params.frequency;
+  updateNewAmpAndFreq();
   const newDune = new Dune(newMap.map, 10);
   heightMaps.push(newMap.map);
   const dunePoints = newDune.generateCubicBezierPoints();
@@ -163,7 +182,7 @@ const animateDunes = () => {
     DUNE_SPEED_X += 0.01;
   }
   if (ANGLE_RADIANS * 10 < 1.5 && DUNE_SPEED_X > 5) {
-    DUNE_SPEED_X -= 0.01;
+    DUNE_SPEED_X -= 0.05;
   }
   const boarder = animations["boarder"];
   ctx.save();

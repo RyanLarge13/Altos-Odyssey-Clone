@@ -1,5 +1,4 @@
 class HeightMap {
-  constructor() {}
   generateSmoothHeightMap(
     startX,
     length,
@@ -15,7 +14,7 @@ class HeightMap {
     for (let x = startX; x <= startX + length; x += xIncrement) {
       amplitude += ampStep;
       frequency += freqStep;
-      const y = amplitude * Math.sin((frequency * x) / length) + x / 2;
+      const y = amplitude * Math.sin((frequency * x) / length) + x / 3;
       heightMap.push({ x, y });
     }
     return { map: heightMap, params: { amplitude, frequency } };
