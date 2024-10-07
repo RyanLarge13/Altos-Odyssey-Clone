@@ -9,12 +9,12 @@ class HeightMap {
     targetFreq
   ) {
     const heightMap = [];
-    const ampStep = targetAmps / length;
-    const freqStep = targetFreq / length;
+    const ampStep = targetAmps / (length / 2);
+    const freqStep = targetFreq / (length / 2);
     for (let x = startX; x <= startX + length; x += xIncrement) {
+      const y = amplitude * Math.sin((frequency * x) / length) + x / 3;
       amplitude += ampStep;
       frequency += freqStep;
-      const y = amplitude * Math.sin((frequency * x) / length) + x / 3;
       heightMap.push({ x, y });
     }
     return { map: heightMap, params: { amplitude, frequency } };

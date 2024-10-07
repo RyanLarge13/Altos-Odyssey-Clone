@@ -3,6 +3,7 @@ class Animation {
     this.imgSrc = imgSrc;
     this.img = null;
     this.offsetXY = { ...offsetXY };
+    this.initialXOffset = offsetXY.x;
     this.imgHeight = 0;
     this.imgWidth = 0;
   }
@@ -31,7 +32,7 @@ class Animation {
     this.offsetXY.x += newSpeed.x * newVelocity.x;
     this.offsetXY.y += newSpeed.y * newVelocity.y;
     if (this.offsetXY.x <= -this.imgWidth) {
-      this.offsetXY.x = 0;
+      this.offsetXY.x = this.initialXOffset;
     }
   }
   get imageWidth() {

@@ -57,31 +57,31 @@ export const srcs = [
   {
     name: "mt1",
     src: `${baseURL}/assets/images/mountain1.svg`,
-    initializedOffset: { x: 300, y: HEIGHT },
+    initializedOffset: { x: WIDTH + 300, y: HEIGHT },
     translation: { x: false, y: true },
   },
   {
     name: "mt2",
     src: `${baseURL}/assets/images/mountain2.svg`,
-    initializedOffset: { x: 1000, y: HEIGHT },
+    initializedOffset: { x: WIDTH + 1000, y: HEIGHT },
     translation: { x: false, y: true },
   },
   {
     name: "mt3",
     src: `${baseURL}/assets/images/mountain3.svg`,
-    initializedOffset: { x: 600, y: HEIGHT - 20 },
+    initializedOffset: { x: WIDTH + 600, y: HEIGHT - 20 },
     translation: { x: false, y: true },
   },
   {
     name: "r1",
     src: `${baseURL}/assets/images/ruins-2.svg`,
-    initializedOffset: { x: 550, y: HEIGHT + 5 },
+    initializedOffset: { x: WIDTH + 550, y: HEIGHT + 5 },
     translation: { x: false, y: true },
   },
   {
     name: "r2",
     src: `${baseURL}/assets/images/ruins-250x250.svg`,
-    initializedOffset: { x: 800, y: HEIGHT - 50 },
+    initializedOffset: { x: WIDTH + 800, y: HEIGHT - 50 },
     translation: { x: false, y: true },
   },
   {

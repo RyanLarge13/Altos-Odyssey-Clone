@@ -75,17 +75,17 @@ let nextAmp = 100;
 let nextFreq = 15;
 
 const updateNewAmpAndFreq = () => {
-  const ampDiff = Math.random() * 300 * (Math.random() < 0.5 ? 1 : -1);
+  const ampDiff = Math.random() * 100 * (Math.random() < 0.5 ? 1 : -1);
   const freqDiff = Math.random() * 15;
-  console.log(freqDiff);
   nextAmp += ampDiff;
   nextFreq += freqDiff;
-  nextAmp = Math.max(-300, Math.min(nextAmp, 300));
-  nextFreq = Math.max(0, Math.min(nextFreq, 20));
-  if (nextFreq >= 20) {
+  nextAmp = Math.max(-100, Math.min(nextAmp, 100));
+  nextFreq = Math.max(0, Math.min(nextFreq, 15));
+  if (nextFreq >= 15) {
     nextFreq = 0;
+    // nextAmp = 0;
+    // Not sure if I liked that or not
   }
-  console.log(nextAmp, nextFreq);
 };
 
 let prevAmp = 150;
@@ -98,7 +98,7 @@ const generateNextMap = (startX) => {
     5000,
     prevAmp,
     prevFreq,
-    10,
+    50,
     nextAmp,
     nextFreq
   );
@@ -131,7 +131,6 @@ const checkEnd = (points) => {
     isEnd = true;
   }
   if (points[length].x - DUNE_X < 0 && isEnd) {
-    console.log(length);
     dunes[0].splice(0, length);
     minSearch = 0;
     isEnd = false;
@@ -182,7 +181,7 @@ const animateDunes = () => {
     DUNE_SPEED_X += 0.01;
   }
   if (ANGLE_RADIANS * 10 < 1.5 && DUNE_SPEED_X > 5) {
-    DUNE_SPEED_X -= 0.05;
+    DUNE_SPEED_X -= 0.05 + Math.abs(ANGLE_RADIANS);
   }
   const boarder = animations["boarder"];
   ctx.save();
@@ -217,7 +216,7 @@ const animate = () => {
         update(ani, { x: 0.04, y: 0 }, { x: -1, y: 0 });
         break;
       case "bg1":
-        ctx.drawImage(ani.img, ani.offsetXY.x + WIDTH * 2 + 58, ani.offsetXY.y);
+        ctx.drawImage(ani.img, ani.offsetXY.x + WIDTH * 2 + 59, ani.offsetXY.y);
         update(ani, { x: 0.1, y: 0 }, { x: -1, y: 0 });
         break;
       case "bg2":
@@ -225,27 +224,27 @@ const animate = () => {
         update(ani, { x: 0.2, y: 0 }, { x: -1, y: 0 });
         break;
       case "bg3":
-        // ctx.drawImage(ani.img, ani.offsetXY.x + WIDTH, ani.offsetXY.y);
+        ctx.drawImage(ani.img, ani.offsetXY.x + WIDTH * 2 + 59, ani.offsetXY.y);
         update(ani, { x: 0.5, y: 0 }, { x: -1, y: 0 });
         break;
       case "mt1":
-        // ctx.drawImage(ani.img, ani.offsetXY.x + WIDTH, ani.offsetXY.y);
+        ctx.drawImage(ani.img, ani.offsetXY.x + WIDTH, ani.offsetXY.y);
         update(ani, { x: 0.3, y: 0 }, { x: -1, y: 0 });
         break;
       case "mt2":
-        // ctx.drawImage(ani.img, ani.offsetXY.x + WIDTH, ani.offsetXY.y);
+        ctx.drawImage(ani.img, ani.offsetXY.x + WIDTH, ani.offsetXY.y);
         update(ani, { x: 0.2, y: 0 }, { x: -1, y: 0 });
         break;
       case "mt3":
-        // ctx.drawImage(ani.img, ani.offsetXY.x + WIDTH, ani.offsetXY.y);
+        ctx.drawImage(ani.img, ani.offsetXY.x + WIDTH, ani.offsetXY.y);
         update(ani, { x: 0.7, y: 0 }, { x: -1, y: 0 });
         break;
       case "r1":
-        // ctx.drawImage(ani.img, ani.offsetXY.x + WIDTH, ani.offsetXY.y);
+        ctx.drawImage(ani.img, ani.offsetXY.x + WIDTH, ani.offsetXY.y);
         update(ani, { x: 0.3, y: 0 }, { x: -1, y: 0 });
         break;
       case "r2":
-        // ctx.drawImage(ani.img, ani.offsetXY.x + WIDTH, ani.offsetXY.y);
+        ctx.drawImage(ani.img, ani.offsetXY.x + WIDTH, ani.offsetXY.y);
         update(ani, { x: 0.4, y: 0 }, { x: -1, y: 0 });
         break;
       case "sun":
