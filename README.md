@@ -4,6 +4,18 @@ Endless Dunes is a 2D side-scrolling game inspired by the popular **Alto's Odyss
 
 This game is still in progress as me and my oldest son try to work problems out together
 
+## Table of contents
+
+[Features](#features)
+[Game Art and Animations](#game-art-and-animation)
+[How It Works](#how-it-works)
+[Tools And Tech](#tools--technologies)
+[Getting Started](#getting-started)
+[Contributing](#contributing)
+[License](#license)
+
+<img src="/assets/Altos-Odyssey-Game.png" alt="game-play" />
+
 ## Features
 
 - **Dynamic Sand Dunes Generation:**
@@ -39,6 +51,8 @@ This game is still in progress as me and my oldest son try to work problems out 
 3. **Seamless Dune Transition:**
    - As the player progresses, new dunes are generated on the right side of the screen and are combined with the existing dunes.
    - Once the dunes leave the screen on the left, their points are spliced to free memory and improve performance.
+
+[Quick Video Of GamePlay](/assets/Game-Play.webm)
 
 ## Tools & Technologies
 
