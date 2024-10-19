@@ -6,13 +6,13 @@ This game is still in progress as me and my oldest son try to work problems out 
 
 ## Table of contents
 
-[Features](#features)
-[Game Art and Animations](#game-art-and-animation)
-[How It Works](#how-it-works)
-[Tools And Tech](#tools--technologies)
-[Getting Started](#getting-started)
-[Contributing](#contributing)
-[License](#license)
+- [Features](#features)
+- [Game Art and Animations](#game-art-and-animation)
+- [How It Works](#how-it-works)
+- [Tools And Tech](#tools--technologies)
+- [Getting Started](#getting-started)
+- [Contributing](#contributing)
+- [License](#license)
 
 <img src="/assets/Altos-Odyssey-Game.png" alt="game-play" />
 
