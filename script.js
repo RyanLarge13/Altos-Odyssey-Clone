@@ -44,7 +44,7 @@ const handleKeyDown = (e) => {
     if (!IS_JUMPING) {
       IS_JUMPING = true;
       SET_ANGLE = false;
-      DUNE_Y_VELOCITY = -0.1;
+      DUNE_Y_VELOCITY = 1.5;
     }
     return;
   }
@@ -157,7 +157,7 @@ const findCoords = (points, target) => {
   return { h, d, y };
 };
 
-// const colliding = (a, b) => Math.abs(a - b) <= 5;
+const isLanding = (a, b) => a - b >= 3.5;
 
 const animateDunes = () => {
   const points = dunes[0];
@@ -174,15 +174,35 @@ const animateDunes = () => {
   ctx.fill();
   const targetX = 150 + DUNE_X + DUNE_SPEED_X;
   const { h, d, y } = findCoords(points, targetX);
-  DUNE_Y = y - CONTACT_POINT - 7.5;
-  ANGLE_RADIANS = Math.atan2(h, d);
-  DUNE_X += DUNE_SPEED_X;
-  if (ANGLE_RADIANS * 10 >= 1.5 && DUNE_SPEED_X < 10) {
+
+  if (isLanding(PLAYER_Y + 15, y - DUNE_Y + 6)) {
+    const stuff = Math.atan2(h, d) * 10;
+    console.log(stuff);
+
+    IS_JUMPING = false;
+  }
+
+  if (IS_JUMPING) {
+    DUNE_Y -= 3 * DUNE_Y_VELOCITY;
+    DUNE_X += DUNE_SPEED_X;
+    DUNE_Y_VELOCITY -= 0.03;
     DUNE_SPEED_X += 0.01;
+  } else {
+    DUNE_Y = y - CONTACT_POINT - 7.5;
+    ANGLE_RADIANS = Math.atan2(h, d);
+
+    DUNE_X += DUNE_SPEED_X;
+    if (ANGLE_RADIANS * 10 >= 1.5 && DUNE_SPEED_X < 10) {
+      DUNE_SPEED_X += 0.01;
+    }
+    if (ANGLE_RADIANS * 10 < 1.5 && DUNE_SPEED_X > 5) {
+      DUNE_SPEED_X -= 0.05 + Math.abs(ANGLE_RADIANS);
+    }
+    if (DUNE_SPEED_X > 10) {
+      DUNE_SPEED_X -= 0.01;
+    }
   }
-  if (ANGLE_RADIANS * 10 < 1.5 && DUNE_SPEED_X > 5) {
-    DUNE_SPEED_X -= 0.05 + Math.abs(ANGLE_RADIANS);
-  }
+
   const boarder = animations["boarder"];
   ctx.save();
   ctx.translate(150, PLAYER_Y);
